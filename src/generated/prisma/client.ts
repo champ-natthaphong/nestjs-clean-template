@@ -11,8 +11,11 @@
 
 import * as process from 'node:process';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
-globalThis['__dirname'] = path.dirname(fileURLToPath(import.meta.url));
+// Support both CommonJS and ESM runtimes without referencing `import.meta.url`.
+// Prefer the CommonJS `__dirname` when available; otherwise fall back to
+// `process.cwd()` which is suitable for most runtime scenarios.
+declare const __dirname: string | undefined;
+(globalThis as any)['__dirname'] = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
 import * as runtime from '@prisma/client/runtime/client';
 import * as $Enums from './enums.js';
