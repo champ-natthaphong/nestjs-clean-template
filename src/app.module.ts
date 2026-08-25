@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { UsersModule } from './modules/users/users.module';
-import { DatabaseModule } from './database/database.module';
+import { DatabaseModule } from './database/database-registry.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ModulesModule } from './modules/modules.module';
 
 @Module({
   imports: [
@@ -18,8 +18,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ConfigModule.forRoot({
       envFilePath: ['.env.development.local'],
     }),
+    // --- Database (Mongoose + startup log) ------------------
     DatabaseModule,
-    UsersModule,
+    // --- Feature Modules ------------------------------------
+    ModulesModule,
   ],
 })
 export class AppModule {}
