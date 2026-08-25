@@ -14,6 +14,7 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Tests
 /coverage
@@ -57,3 +58,15 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 
 /generated/prisma
+
+
+
+# Docker
+docker-compose.override.yaml
+.tmp/
+.npmrc
+package-lock.json
+
+# Claude/Anthropic
+.claude/
+CLAUDE.md
