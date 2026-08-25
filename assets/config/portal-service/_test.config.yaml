@@ -1,0 +1,125 @@
+app:
+  name: 'portal-service'
+  component-name: 'resource.portal-service'
+  description: '[Example] management service - Test'
+  version: '1.0'
+  collection-name: 'example.examples'
+  tmf-spec: 'TMF999'
+  base-api-version: '4.0.0'
+  schema-version: '1.0.0'
+
+log:
+  detail:
+    level: 'debug'
+    enable-file-logging: false
+    log-file-properties:
+      dirname: 'logs/detail'
+      filename: 'detail-%DATE%'
+      date-pattern: 'YYYY-MM-DD-HH'
+      extension: '.log'
+  summary:
+    level: 'info'
+    enable-file-logging: false
+    log-file-properties:
+      dirname: 'logs/summary'
+      filename: 'summary-%DATE%'
+      date-pattern: 'YYYY-MM-DD-HH'
+      extension: '.log'
+
+nanoid:
+  alphanum: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+  len: 11
+
+kafka:
+  client:
+    client-id: 'portal-service-test'
+  consumer:
+    group-id: 'portal-service-test-grp'
+    allow-auto-topic-creation: true
+
+topics:
+  consume:
+    atn:
+      new-registration-response: 'esb.atn.registration.response.v1'
+  produce:
+    atn:
+      new-registration-request: 'esb.atn.registration.request.v1'
+      new-registration-response: 'esb.atn.registration.response.v1'
+      change-package-request: 'esb.atn.package.change.request.v1'
+      change-package-response: 'esb.atn.package.change.response.v1'
+      activate-sim-request: 'esb.atn.sim.activate.request.v1'
+      activate-sim-response: 'esb.atn.sim.activate.response.v1'
+    sky:
+      payment-request: 'esb.sky.payment.request.v1'
+      payment-response: 'esb.sky.payment.response.v1'
+      top-up-request: 'esb.sky.topup.request.v1'
+      top-up-response: 'esb.sky.topup.response.v1'
+    ccsm:
+      customer-updated: 'esb.ccsm.customer.updated.v1'
+      billing-updated: 'esb.ccsm.billing.updated.v1'
+
+api-services:
+  esb:
+    atn:
+      sub-profile:
+        url: http://192.168.30.113:3090/esb/atn/v1/sub-profile
+        method: 'GET'
+        timeout: 5000
+        reject-unauthorized: false
+      package-detail:
+        url: http://192.168.30.113:3090/esb/atn/v1/package-detail
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
+      change-package:
+        url: http://192.168.30.113:3090/esb/atn/v1/change-package
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
+      activate-sim:
+        url: http://192.168.30.113:3090/esb/atn/v1/subscriber/:subscriberId/activate
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
+    sky:
+      balance-inquiry:
+        url: http://192.168.30.113:3090/esb/sky/v1/balance-inquiry
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
+      payment:
+        url: http://192.168.30.113:3090/esb/sky/v1/payment
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
+      billing-history:
+        url: http://192.168.30.113:3090/esb/sky/v1/subscriber/:subscriberId/billing-history
+        method: 'GET'
+        timeout: 5000
+        reject-unauthorized: false
+      top-up:
+        url: http://192.168.30.113:3090/esb/sky/v1/top-up
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
+    ccsm:
+      customer-profile:
+        url: http://192.168.30.113:3090/esb/ccsm/v1/customer-profile
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
+      billing-account:
+        url: http://192.168.30.113:3090/esb/ccsm/v1/billing-account
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
+      update-customer:
+        url: http://192.168.30.113:3090/esb/ccsm/v1/update-customer
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
+      verify-identity:
+        url: http://192.168.30.113:3090/esb/ccsm/v1/verify-identity
+        method: 'POST'
+        timeout: 5000
+        reject-unauthorized: false
