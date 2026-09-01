@@ -3,9 +3,14 @@ import { DatabaseModule } from './database/database-registry.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ModulesModule } from './modules/modules.module';
+import { AppConfigModule } from './shared/config/app-config.module';
 
 @Module({
   imports: [
+    AppConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -15,10 +20,8 @@ import { ModulesModule } from './modules/modules.module';
         },
       ],
     }),
-    ConfigModule.forRoot({
-      envFilePath: ['.env.development.local'],
-    }),
-    // --- Database (Mongoose + startup log) ------------------
+
+    // --- Database (prisma + startup log) ------------------
     DatabaseModule,
     // --- Feature Modules ------------------------------------
     ModulesModule,
