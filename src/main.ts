@@ -2,30 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import helmet from 'helmet';
-import { readFileSync } from 'fs';
-import * as yaml from 'js-yaml';
-import { join } from 'path';
-import { removePathTraversalCharacters } from './shared/utils/sanitize';
-
-const config = yaml.load(
-  readFileSync(
-    join(
-      process.cwd(),
-      'assets',
-      'config',
-      'portal-service',
-      `${removePathTraversalCharacters(process.env.ZONE)}.config.yaml`,
-    ),
-    'utf8',
-  ),
-) as Record<string, unknown>;
-console.log({ config: config });
+import { APP_CONFIG, AppConfig } from './shared/config/condfig.token';
 
 async function bootstrap() {
   const logger = new Logger('Information');
-
-  logger.log('Starting application...');
   const app = await NestFactory.create(AppModule, { cors: true });
+  const config = app.get<AppConfig>(APP_CONFIG);
+
   app.use(helmet());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -35,14 +18,14 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = config.app.port ?? process.env.PORT ?? 3000;
+  await app.listen(port);
   logger.log(`Environment: ${process.env.ZONE ?? 'local'}`);
-  logger.log(`HTTP server listening on port ${process.env.PORT ?? 3000}`);
+  logger.log(`HTTP server listening on port ${port}`);
   logger.log('Application bootstrap completed');
 }
 
 bootstrap().catch((err) => {
-  // eslint-disable-next-line no-console
   console.error('--XX-- Error during application bootstrap:', err);
   process.exit(1);
 });
