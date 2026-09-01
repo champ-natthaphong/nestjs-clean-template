@@ -1,37 +1,61 @@
 app:
   name: 'nestjs-portal-service'
-  component-name: 'resource.portal-service'
+  port: 30001
+  zone: 'local'
+  componentName: 'resource.portal-service'
   description: '[Example] management service'
   version: '1.0'
-  collection-name: 'example.examples'
-  tmf-spec: 'TMF999'
-  base-api-version: '1.0.0'
-  schema-version: '1.0.0'
-  auth-token: 'local-dev-token'
+  collectionName: 'example.examples'
+  baseApiVersion: '1.0.0'
+  schemaVersion: '1.0.0'
+  authToken: 'local-dev-token'
+
+database:
+  uri: mongodb://localhost:27017/portal-service
+
+kafka:
+  brokers:
+    - localhost:9092
+  consumer:
+    groupId: portal-service-group
+  producer:
+    clientId: portal-service-producer
+
+externalServices:
+  userService:
+    baseUrl: http://localhost:4001
+    timeout: 5000
+  paymentService:
+    baseUrl: http://localhost:4002
+    timeout: 10000
+
+throttler:
+  ttl: 10000
+  limit: 20
 
 log:
   detail:
     level: 'debug'
-    enable-file-logging: false
-    log-file-properties:
+    enableFileLogging: false
+    logFileProperties:
       dirname: 'logs/detail'
       filename: 'detail-%DATE%'
-      date-pattern: 'YYYY-MM-DD-HH'
+      datePattern: 'YYYY-MM-DD-HH'
       extension: '.log'
   summary:
     level: 'debug'
-    enable-file-logging: false
-    log-file-properties:
+    enableFileLogging: false
+    logFileProperties:
       dirname: 'logs/summary'
       filename: 'summary-%DATE%'
-      date-pattern: 'YYYY-MM-DD-HH'
+      datePattern: 'YYYY-MM-DD-HH'
       extension: '.log'
 
 # ─── Feature Flags ────────────────────────────────
-feature-flags:
-  enable-new-registration: true
-  enable-payment-flow: false
-  enable-kafka-consumer: true
+featureFlags:
+  enableNewRegistration: true
+  enablePaymentFlow: false
+  enableKafkaConsumer: true
 
 # nanoid:
 #   alphanum: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
