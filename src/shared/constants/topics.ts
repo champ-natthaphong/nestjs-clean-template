@@ -18,10 +18,12 @@
  * };
  */
 
-export const PRODUCER_TOPICS: Record<string, string> = {
-  // Define producer topics here
-};
-
 export const CONSUMER_TOPICS: Record<string, string> = {
   // Define consumer topics here
+  notificationIncoming: process.env.TOPIC_NOTIFICATION_INCOMING ?? 'notification.incoming',
+};
+
+export const PRODUCER_TOPICS: Record<string, string> = {
+  // Define producer topics here
+  notificationIncoming: process.env.TOPIC_NOTIFICATION_INCOMING ?? 'notification.incoming',
 };
