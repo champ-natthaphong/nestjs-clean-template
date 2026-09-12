@@ -8,10 +8,17 @@ export class UsersController {
 
   @Get()
   getUsers() {
+    console.log('UsersController.getUsers() called');
+    const users = this.usersManager.getUsers();
+    console.log(users);
+
     return this.usersManager.getUsers();
   }
+
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
+    console.log({ createUserDto });
+
     return this.usersManager.createUser(createUserDto);
   }
 }

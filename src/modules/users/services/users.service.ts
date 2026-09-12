@@ -8,6 +8,13 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
   getUsers() {
+    console.log('users repository ');
+    console.log({ clss: this.configService });
+    const appName = this.configService.get<string>('APP_NAME');
+    const nodeEnv = this.configService.get<string>('NODE_ENV');
+    const port = this.configService.get<string>('PORT');
+
+    console.log({ appName, nodeEnv, port });
     return this.usersRepository.findAll();
   }
 

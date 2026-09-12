@@ -5,6 +5,7 @@ import { UsersService } from '../services/users.service';
 export class UsersManager {
   constructor(private readonly usersService: UsersService) {}
   getUsers() {
+    console.log('UsersManager.getUsers() called');
     return this.usersService.getUsers();
   }
 
