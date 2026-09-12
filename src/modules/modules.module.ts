@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
+import { NotificationModule } from './notification/notification.module';
 
 /**
  * 📦 Feature Modules Aggregator
@@ -20,6 +21,7 @@ import { UsersModule } from './users/users.module';
     // Add feature modules here, e.g:
     // RegistrationModule,
     UsersModule,
+    NotificationModule,
   ],
 })
 export class ModulesModule {}

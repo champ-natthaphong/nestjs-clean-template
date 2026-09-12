@@ -68,26 +68,26 @@ featureFlags:
 #     group-id: "portal-service-grp"
 #     allow-auto-topic-creation: true
 
-# topics:
-#   consume:
-#     atn:
-#       new-registration-response: "esb.atn.registration.response.v1"
-#   produce:
-#     atn:
-#       new-registration-request: "esb.atn.registration.request.v1"
-#       new-registration-response: "esb.atn.registration.response.v1"
-#       change-package-request: "esb.atn.package.change.request.v1"
-#       change-package-response: "esb.atn.package.change.response.v1"
-#       activate-sim-request: "esb.atn.sim.activate.request.v1"
-#       activate-sim-response: "esb.atn.sim.activate.response.v1"
-#     sky:
-#       payment-request: "esb.sky.payment.request.v1"
-#       payment-response: "esb.sky.payment.response.v1"
-#       top-up-request: "esb.sky.topup.request.v1"
-#       top-up-response: "esb.sky.topup.response.v1"
-#     ccsm:
-#       customer-updated: "esb.ccsm.customer.updated.v1"
-#       billing-updated: "esb.ccsm.billing.updated.v1"
+topics:
+  consume:
+    atn:
+      new-registration-response: 'esb.atn.registration.response.v1'
+  produce:
+    atn:
+      new-registration-request: 'esb.atn.registration.request.v1'
+      new-registration-response: 'esb.atn.registration.response.v1'
+      change-package-request: 'esb.atn.package.change.request.v1'
+      change-package-response: 'esb.atn.package.change.response.v1'
+      activate-sim-request: 'esb.atn.sim.activate.request.v1'
+      activate-sim-response: 'esb.atn.sim.activate.response.v1'
+    sky:
+      payment-request: 'esb.sky.payment.request.v1'
+      payment-response: 'esb.sky.payment.response.v1'
+      top-up-request: 'esb.sky.topup.request.v1'
+      top-up-response: 'esb.sky.topup.response.v1'
+    ccsm:
+      customer-updated: 'esb.ccsm.customer.updated.v1'
+      billing-updated: 'esb.ccsm.billing.updated.v1'
 
 # api-services:
 #   # ─── ESB REST APIs ─────────────────────────────────
