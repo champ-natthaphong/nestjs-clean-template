@@ -1,63 +1,57 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
-import { Notification, NotificationStatus } from '../../../../generated/prisma';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Notification, NotificationStatus } from '../entities/notification.entity';
+
 @Injectable()
 export class NotificationRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @InjectRepository(Notification)
+    private readonly repo: Repository<Notification>,
+  ) {}
 
-  async create(data: {
-    userId: string;
-    title: string;
-    message: string;
-    metadata?: any;
-  }): Promise<Notification> {
-    return this.prisma.notification.create({ data });
+  async create(data: Partial<Notification>): Promise<Notification> {
+    const notification = this.repo.create(data);
+    return this.repo.save(notification);
   }
 
   async findByUserId(userId: string): Promise<Notification[]> {
-    return this.prisma.notification.findMany({
+    return this.repo.find({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      order: { createdAt: 'DESC' },
     });
   }
 
   async findById(id: string): Promise<Notification | null> {
-    return this.prisma.notification.findUnique({ where: { id } });
+    return this.repo.findOne({ where: { id } });
   }
 
   async findUnreadByUserId(userId: string): Promise<Notification[]> {
-    return this.prisma.notification.findMany({
+    return this.repo.find({
       where: { userId, isRead: false },
-      orderBy: { createdAt: 'desc' },
+      order: { createdAt: 'DESC' },
     });
   }
 
-  async markAsRead(id: string): Promise<Notification> {
-    return this.prisma.notification.update({
-      where: { id },
-      data: { isRead: true, readAt: new Date() },
-    });
+  async markAsRead(id: string): Promise<Notification | null> {
+    await this.repo.update(id, { isRead: true, readAt: new Date() });
+    return this.repo.findOne({ where: { id } });
   }
 
   async markAllAsReadByUserId(userId: string): Promise<void> {
-    await this.prisma.notification.updateMany({
-      where: { userId, isRead: false },
-      data: { isRead: true, readAt: new Date() },
-    });
+    await this.repo.update({ userId, isRead: false }, { isRead: true, readAt: new Date() });
   }
 
-  async updateStatus(id: string, status: NotificationStatus): Promise<Notification> {
-    return this.prisma.notification.update({
-      where: { id },
-      data: { status },
-    });
+  async updateStatus(id: string, status: NotificationStatus): Promise<Notification | null> {
+    await this.repo.update(id, { status });
+    return this.repo.findOne({ where: { id } });
   }
 
   async countUnreadByUserId(userId: string): Promise<number> {
-    return this.prisma.notification.count({ where: { userId, isRead: false } });
+    return this.repo.count({ where: { userId, isRead: false } });
   }
 
   async deleteById(id: string): Promise<void> {
-    await this.prisma.notification.delete({ where: { id } });
+    await this.repo.delete(id);
   }
 }
