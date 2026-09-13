@@ -1,6 +1,6 @@
 // src/modules/notification/dto/notification.dto.ts
 import { IsString, IsEnum, IsOptional, IsObject } from 'class-validator';
-import { NotificationType } from '../../../../generated/prisma';
+import { NotificationType } from '../entities/notification.entity';
 
 export class CreateNotificationDto {
   @IsString()

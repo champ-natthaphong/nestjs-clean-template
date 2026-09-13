@@ -25,7 +25,7 @@ export enum NotificationStatus {
 }
 
 @Entity('notifications')
-export class Notification {
+export class NotificationEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

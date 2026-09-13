@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Notification } from '../../notification/entities/notification.entity';
+import { NotificationEntity } from '../../notification/entities/notification.entity';
 
 @Entity('users')
 export class User {
@@ -26,6 +26,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @OneToMany(() => Notification, (notification) => notification.user)
-  notifications!: Notification[];
+  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  notifications!: NotificationEntity[];
 }

@@ -1,18 +1,18 @@
 // src/modules/notification/services/notification.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Notification, NotificationStatus } from '../../../../generated/prisma'; // ← เปลี่ยน
 import { NotificationRepository } from '../repositories/notification.repository';
 import { CreateNotificationDto, NotificationMessageDto } from '../dto/notification.dto';
+import { NotificationEntity, NotificationStatus } from '../entities/notification.entity';
 
 @Injectable()
 export class NotificationService {
   constructor(private readonly notificationRepository: NotificationRepository) {}
 
-  async getNotificationsByUserId(userId: string): Promise<Notification[]> {
+  async getNotificationsByUserId(userId: string): Promise<NotificationEntity[]> {
     return this.notificationRepository.findByUserId(userId);
   }
 
-  async getUnreadNotifications(userId: string): Promise<Notification[]> {
+  async getUnreadNotifications(userId: string): Promise<NotificationEntity[]> {
     return this.notificationRepository.findUnreadByUserId(userId);
   }
 
@@ -20,7 +20,7 @@ export class NotificationService {
     return this.notificationRepository.countUnreadByUserId(userId);
   }
 
-  async getNotificationById(id: string): Promise<Notification> {
+  async getNotificationById(id: string): Promise<NotificationEntity> {
     const notification = await this.notificationRepository.findById(id);
     if (!notification) {
       throw new NotFoundException(`Notification ${id} not found`);
@@ -28,11 +28,11 @@ export class NotificationService {
     return notification;
   }
 
-  async createNotification(dto: CreateNotificationDto): Promise<Notification> {
+  async createNotification(dto: CreateNotificationDto): Promise<NotificationEntity> {
     return this.notificationRepository.create(dto);
   }
 
-  async markAsRead(id: string): Promise<Notification> {
+  async markAsRead(id: string): Promise<NotificationEntity | null> {
     return this.notificationRepository.markAsRead(id);
   }
 
@@ -45,7 +45,7 @@ export class NotificationService {
     await this.notificationRepository.deleteById(id);
   }
 
-  async processIncomingNotification(data: NotificationMessageDto): Promise<Notification> {
+  async processIncomingNotification(data: NotificationMessageDto): Promise<NotificationEntity> {
     const notification = await this.notificationRepository.create({
       userId: data.userId,
       title: data.title,
