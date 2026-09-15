@@ -1,4 +1,3 @@
-// src/modules/users/entities/user.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -10,7 +9,7 @@ import {
 import { NotificationEntity } from '../../notification/entities/notification.entity';
 
 @Entity('users')
-export class User {
+export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

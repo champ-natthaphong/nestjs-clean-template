@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../modules/users/entities/user.entity';
+import { UserEntity } from '../modules/users/entities/user.entity';
 import { NotificationEntity } from '../modules/notification/entities/notification.entity';
 
 @Global()
@@ -12,7 +12,7 @@ import { NotificationEntity } from '../modules/notification/entities/notificatio
         url:
           process.env.DATABASE_URL ??
           'postgresql://postgres:postgres@localhost:5432/nestjs_template',
-        entities: [User, NotificationEntity],
+        entities: [UserEntity, NotificationEntity],
         synchronize: process.env.ZONE === 'local', // ← auto migrate dev only
         logging: process.env.ZONE === 'local',
       }),

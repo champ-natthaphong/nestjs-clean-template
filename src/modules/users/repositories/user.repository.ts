@@ -1,54 +1,54 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
+import { UserEntity } from '../entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dto/user.dto';
 
 @Injectable()
 export class UserRepository {
   constructor(
-    @InjectRepository(User)
-    private readonly repo: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return this.repo.find({ order: { createdAt: 'DESC' } });
+  async findAll(): Promise<UserEntity[]> {
+    return this.userRepo.find({ order: { createdAt: 'DESC' } });
   }
 
-  async findById(id: string): Promise<User | null> {
-    return this.repo.findOne({ where: { id } });
+  async findById(id: string): Promise<UserEntity | null> {
+    return this.userRepo.findOne({ where: { id } });
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.repo.findOne({ where: { email } });
+  async findByEmail(email: string): Promise<UserEntity | null> {
+    return this.userRepo.findOne({ where: { email } });
   }
 
-  async findByIdWithNotifications(id: string): Promise<User | null> {
-    return this.repo.findOne({
+  async findByIdWithNotifications(id: string): Promise<UserEntity | null> {
+    return this.userRepo.findOne({
       where: { id },
       relations: { notifications: true },
     });
   }
 
-  async create(dto: CreateUserDto): Promise<User> {
-    const user = this.repo.create(dto);
-    return this.repo.save(user);
+  async create(dto: CreateUserDto): Promise<UserEntity> {
+    const user = this.userRepo.create(dto);
+    return this.userRepo.save(user);
   }
 
-  async update(id: string, dto: UpdateUserDto): Promise<User | null> {
-    await this.repo.update(id, dto);
-    return this.repo.findOne({ where: { id } });
+  async update(id: string, dto: UpdateUserDto): Promise<UserEntity | null> {
+    await this.userRepo.update(id, dto);
+    return this.userRepo.findOne({ where: { id } });
   }
 
   async deleteById(id: string): Promise<void> {
-    await this.repo.delete(id);
+    await this.userRepo.delete(id);
   }
 
   async existsById(id: string): Promise<boolean> {
-    return this.repo.existsBy({ id });
+    return this.userRepo.existsBy({ id });
   }
 
   async existsByEmail(email: string): Promise<boolean> {
-    return this.repo.existsBy({ email });
+    return this.userRepo.existsBy({ email });
   }
 }

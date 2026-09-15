@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto, UpdateUserDto } from '../dto/user.dto';
-import { User } from '../entities/user.entity';
+import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getAllUsers(): Promise<User[]> {
+  async getAllUsers(): Promise<UserEntity[]> {
     return this.userRepository.findAll();
   }
 
-  async getUserById(id: string): Promise<User> {
+  async getUserById(id: string): Promise<UserEntity> {
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException(`User ${id} not found`);
@@ -19,7 +19,7 @@ export class UserService {
     return user;
   }
 
-  async getUserWithNotifications(id: string): Promise<User> {
+  async getUserWithNotifications(id: string): Promise<UserEntity> {
     const user = await this.userRepository.findByIdWithNotifications(id);
     if (!user) {
       throw new NotFoundException(`User ${id} not found`);
@@ -27,7 +27,7 @@ export class UserService {
     return user;
   }
 
-  async createUser(dto: CreateUserDto): Promise<User> {
+  async createUser(dto: CreateUserDto): Promise<UserEntity> {
     const exists = await this.userRepository.existsByEmail(dto.email);
     if (exists) {
       throw new ConflictException(`Email ${dto.email} already exists`);
@@ -35,7 +35,7 @@ export class UserService {
     return this.userRepository.create(dto);
   }
 
-  async updateUser(id: string, dto: UpdateUserDto): Promise<User | null> {
+  async updateUser(id: string, dto: UpdateUserDto): Promise<UserEntity | null> {
     await this.getUserById(id); // validate exists
 
     if (dto.email) {
