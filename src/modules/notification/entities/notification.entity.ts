@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { UserEntity } from '../../users/entities/user.entity';
 
 export enum NotificationType {
   INFO = 'INFO',
@@ -59,7 +59,7 @@ export class NotificationEntity {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @ManyToOne(() => User, (user) => user.notifications)
+  @ManyToOne(() => UserEntity, (user) => user.notifications)
   @JoinColumn({ name: 'userId' })
-  user!: User;
+  user!: UserEntity;
 }

@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ModulesModule } from './modules/modules.module';
 import { AppConfigModule } from './shared/config/app-config.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { AppConfigModule } from './shared/config/app-config.module';
         },
       ],
     }),
-
+    CommonModule,
     // --- Database (prisma + startup log) ------------------
     DatabaseModule,
     // --- Feature Modules ------------------------------------
