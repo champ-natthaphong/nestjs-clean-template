@@ -16,6 +16,7 @@ import {
 
 import { AppModule } from './app.module';
 import { removePathTraversalCharacters } from './shared/utils/sanitize';
+import { VersioningType } from '@nestjs/common';
 
 const config = yaml.load(
   readFileSync(
@@ -65,9 +66,15 @@ async function bootstrap(): Promise<void> {
   const port = process.env.PORT || 3080;
   const healthCheckPort = process.env.HEALTH_CHECK_PORT || 3001;
   const kafkaConf = config['kafka'] as Record<string, Record<string, unknown>>;
-
   const app = await NestFactory.create(AppModule);
 
+  // Global prefix
+  app.setGlobalPrefix('api'); // ← เพิ่ม
+  // URI Versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
   app.useGlobalPipes(new AppValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
 
