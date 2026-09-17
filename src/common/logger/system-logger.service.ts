@@ -6,11 +6,11 @@ export class SystemLoggerService implements LoggerService {
   private readonly logger = new Logger('System');
 
   log(message: string, context?: string): void {
-    this.logger.log(message, context);
+    context ? this.logger.log(message, context) : this.logger.log(message);
   }
 
   info(message: string, context?: string): void {
-    this.logger.log(message, context); // NestJS ไม่มี info level ใช้ log แทน
+    context ? this.logger.log(message, context) : this.logger.log(message);
   }
 
   error(message: string, trace?: string, context?: string): void {
@@ -18,14 +18,14 @@ export class SystemLoggerService implements LoggerService {
   }
 
   warn(message: string, context?: string): void {
-    this.logger.warn(message, context);
+    context ? this.logger.warn(message, context) : this.logger.warn(message);
   }
 
   debug(message: string, context?: string): void {
-    this.logger.debug(message, context);
+    context ? this.logger.debug(message, context) : this.logger.debug(message);
   }
 
   verbose(message: string, context?: string): void {
-    this.logger.verbose(message, context);
+    context ? this.logger.verbose(message, context) : this.logger.verbose(message);
   }
 }
