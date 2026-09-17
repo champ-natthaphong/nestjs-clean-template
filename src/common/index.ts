@@ -35,3 +35,6 @@ export { setupGracefulShutdown } from './utils/setup-graceful-shutdown';
 export { buildSuccessResponse, buildErrorResponse, ResultCodes } from './utils/response.util';
 export type { ResultCode } from './utils/response.util';
 export { SummaryFlush } from './logger/summary-flush';
+
+// Config
+export { ConfigService } from './config/config.service';

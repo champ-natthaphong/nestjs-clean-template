@@ -5,9 +5,8 @@ import { join } from 'path';
 import * as yaml from 'js-yaml';
 import { removePathTraversalCharacters } from '../utils/sanitize';
 import { APP_CONFIG, AppConfig } from './condfig.token';
-console.log({ APP_CONFIG });
 
-@Global() // ← inject ได้ทุก module โดยไม่ต้อง import ซ้ำ
+@Global()
 @Module({
   providers: [
     {

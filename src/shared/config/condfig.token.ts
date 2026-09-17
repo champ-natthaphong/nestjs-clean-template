@@ -23,6 +23,16 @@ export interface AppConfig {
     consumer: { groupId: string };
     producer: { clientId: string };
   };
+  topics: {
+    consume: {
+      atn: Record<string, string>;
+    };
+    produce: {
+      atn: Record<string, string>;
+      sky: Record<string, string>;
+      ccsm: Record<string, string>;
+    };
+  };
   externalServices: Record<string, { baseUrl: string; timeout: number }>;
   throttler: {
     ttl: number;

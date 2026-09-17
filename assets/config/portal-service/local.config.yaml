@@ -13,14 +13,6 @@ app:
 database:
   uri: mongodb://localhost:27017/portal-service
 
-kafka:
-  brokers:
-    - localhost:9092
-  consumer:
-    groupId: portal-service-group
-  producer:
-    clientId: portal-service-producer
-
 externalServices:
   userService:
     baseUrl: http://localhost:4001
@@ -67,6 +59,22 @@ featureFlags:
 #   consumer:
 #     group-id: "portal-service-grp"
 #     allow-auto-topic-creation: true
+kafka:
+  brokers:
+    - localhost:9092
+  client:
+    client-id: portal-service-client
+    ssl: false
+    request-timeout: 30000
+    enforce-request-timeout: false
+    initial-retry-time: 100
+    retries: 8
+    connection-timeout: 3000
+  consumer:
+    group-id: portal-service-group
+    allow-auto-topic-creation: true
+  producer:
+    client-id: portal-service-producer
 
 topics:
   consume:
@@ -75,19 +83,6 @@ topics:
   produce:
     atn:
       new-registration-request: 'esb.atn.registration.request.v1'
-      new-registration-response: 'esb.atn.registration.response.v1'
-      change-package-request: 'esb.atn.package.change.request.v1'
-      change-package-response: 'esb.atn.package.change.response.v1'
-      activate-sim-request: 'esb.atn.sim.activate.request.v1'
-      activate-sim-response: 'esb.atn.sim.activate.response.v1'
-    sky:
-      payment-request: 'esb.sky.payment.request.v1'
-      payment-response: 'esb.sky.payment.response.v1'
-      top-up-request: 'esb.sky.topup.request.v1'
-      top-up-response: 'esb.sky.topup.response.v1'
-    ccsm:
-      customer-updated: 'esb.ccsm.customer.updated.v1'
-      billing-updated: 'esb.ccsm.billing.updated.v1'
 
 # api-services:
 #   # ─── ESB REST APIs ─────────────────────────────────

@@ -1,3 +1,4 @@
+import { ConfigService } from '../../common';
 /**
  * Kafka Topic Constants
  *
@@ -18,14 +19,14 @@
  * };
  */
 
-export const CONSUMER_TOPICS: Record<string, string> = {
-  // Define consumer topics here
-  notificationIncoming: process.env.TOPIC_NOTIFICATION_INCOMING ?? 'notification.incoming',
-  atnRegistrationResponse:
-    process.env.TOPIC_ATN_REGISTRATION_RESPONSE ?? 'esb.atn.registration.response.v1',
+const config = new ConfigService();
+
+export const CONSUMER_TOPICS = {
+  notificationIncoming:
+    config.get<string>('topics.consume.atn.notification-incoming') ?? 'notification.incoming',
+  atnRegistrationResponse: config.get<string>('topics.consume.atn.new-registration-response'),
 };
 
-export const PRODUCER_TOPICS: Record<string, string> = {
-  // Define producer topics here
-  notificationIncoming: process.env.TOPIC_NOTIFICATION_INCOMING ?? 'notification.incoming',
+export const PRODUCER_TOPICS = {
+  atnRegistrationRequest: config.get<string>('topics.produce.atn.new-registration-request'),
 };
