@@ -21,6 +21,8 @@
 export const CONSUMER_TOPICS: Record<string, string> = {
   // Define consumer topics here
   notificationIncoming: process.env.TOPIC_NOTIFICATION_INCOMING ?? 'notification.incoming',
+  atnRegistrationResponse:
+    process.env.TOPIC_ATN_REGISTRATION_RESPONSE ?? 'esb.atn.registration.response.v1',
 };
 
 export const PRODUCER_TOPICS: Record<string, string> = {

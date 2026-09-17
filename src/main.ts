@@ -3,7 +3,7 @@ import { MicroserviceOptions } from '@nestjs/microservices';
 import { readFileSync } from 'fs';
 import * as yaml from 'js-yaml';
 import { join } from 'path';
-
+import chalk from 'chalk';
 import {
   AllExceptionsFilter,
   AppValidationPipe,
@@ -34,10 +34,11 @@ console.log({ config });
 
 function kafkaConfig() {
   const kafkaConf = config['kafka'] as Record<string, Record<string, unknown>>;
+  console.log('kafkaConf:', JSON.stringify(kafkaConf, null, 2));
   return {
     client: {
       brokers: [process.env.BROKERS!],
-      clientId: kafkaConf.client['client-id'] as string,
+      clientId: kafkaConf.producer['client-id'] as string,
       ssl: kafkaConf.client['ssl'] as boolean,
       sasl:
         removePathTraversalCharacters(process.env.ZONE) !== 'local'
@@ -77,7 +78,7 @@ async function bootstrap(): Promise<void> {
   });
   app.useGlobalPipes(new AppValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
-
+  console.log('kafka consumer config:', kafkaConf.consumer);
   app.connectMicroservice<MicroserviceOptions>({
     strategy: new CustomServerConfluentKafkaJS({
       'group.id': kafkaConf.consumer['group-id'] as string,
@@ -87,7 +88,18 @@ async function bootstrap(): Promise<void> {
   await app.startAllMicroservices();
 
   await app.listen(port);
-
+  console.log(`
+  ${chalk.gray('==================================================')}
+  ${chalk.green('✓')} ${chalk.bold('NestJS Clean Template')} is running!
+  ${chalk.gray('--------------------------------------------------')}
+  🚀 ${chalk.white('Server:')}      ${chalk.cyan(`http://localhost:${port}`)}
+  📡 ${chalk.white('API Base:')}    ${chalk.cyan(`http://localhost:${port}/api/v1`)}
+  🌎 ${chalk.white('Zone:')}        ${chalk.yellow(process.env.ZONE || 'local')}
+  🏥 ${chalk.white('Health:')}      ${chalk.cyan(`http://localhost:${process.env.HEALTH_CHECK_PORT || 3001}`)}
+  🔗 ${chalk.white('Kafka:')}       ${chalk.magenta(process.env.BROKERS || 'localhost:9092')}
+  🗄️  ${chalk.white('Database:')}   ${chalk.magenta(process.env.DATABASE_URL?.split('@')[1] || 'localhost:5432')}
+  ${chalk.gray('==================================================')}
+  `);
   setupGracefulShutdown({ app });
 
   await HealthCheck.startHealthCheckWithDependenciesService(
