@@ -23,11 +23,8 @@ import { KafkaModule } from './common/kafka/kafka.module';
       ],
     }),
     CommonModule,
-    // --- Database (prisma + startup log) ------------------
     DatabaseModule,
-    // --- Kafka Admin (create topics) -----------------------
     KafkaModule,
-    // --- Feature Modules ------------------------------------
     ModulesModule,
   ],
 })
