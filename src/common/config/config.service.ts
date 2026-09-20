@@ -22,4 +22,5 @@ export class ConfigService {
   get<T>(path: string): T {
     return path.split('.').reduce((obj, key) => obj?.[key], this.config) as T;
   }
+  [key: string]: any;
 }

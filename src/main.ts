@@ -1,121 +1,57 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
-import { readFileSync } from 'fs';
-import * as yaml from 'js-yaml';
-import { join } from 'path';
 import chalk from 'chalk';
 import {
   AllExceptionsFilter,
   AppValidationPipe,
+  ConfigService,
   CustomServerConfluentKafkaJS,
   HealthCheck,
   HealthCheckBuilder,
   setupGracefulShutdown,
   SystemLoggerService,
 } from './common';
-
 import { AppModule } from './app.module';
-import { removePathTraversalCharacters } from './shared/utils/sanitize';
 import { VersioningType } from '@nestjs/common';
-
-const config = yaml.load(
-  readFileSync(
-    join(
-      process.cwd(),
-      'assets',
-      'config',
-      'portal-service',
-      `${removePathTraversalCharacters(process.env.ZONE)}.config.yaml`,
-    ),
-    'utf8',
-  ),
-) as Record<string, unknown>;
-console.log({ config });
-
-function kafkaConfig() {
-  const kafkaConf = config['kafka'] as Record<string, Record<string, unknown>>;
-  console.log('kafkaConf:', JSON.stringify(kafkaConf, null, 2));
-  return {
-    client: {
-      brokers: [process.env.BROKERS!],
-      clientId: kafkaConf.producer['client-id'] as string,
-      ssl: kafkaConf.client['ssl'] as boolean,
-      sasl:
-        removePathTraversalCharacters(process.env.ZONE) !== 'local'
-          ? {
-              mechanism: 'plain' as const,
-              username: process.env.API_KEY!,
-              password: process.env.API_SECRET!,
-            }
-          : undefined,
-      requestTimeout: kafkaConf.client['request-timeout'] as number,
-      enforceRequestTimeout: kafkaConf.client['enforce-request-timeout'] as boolean,
-      retry: {
-        initialRetryTime: kafkaConf.client['initial-retry-time'] as number,
-        retries: kafkaConf.client['retries'] as number,
-      },
-      connectionTimeout: kafkaConf.client['connection-timeout'] as number,
-    },
-    consumer: {
-      groupId: kafkaConf.consumer['group-id'] as string,
-      allowAutoTopicCreation: kafkaConf.consumer['allow-auto-topic-creation'] as boolean,
-    },
-  };
-}
+import { kafkaConfig } from './common/kafka/kafka.config';
 
 async function bootstrap(): Promise<void> {
   const port = process.env.PORT || 3080;
   const healthCheckPort = process.env.HEALTH_CHECK_PORT || 3001;
-  const kafkaConf = config['kafka'] as Record<string, Record<string, unknown>>;
+  const configService = new ConfigService();
+  const kafkaOptions = kafkaConfig();
   const app = await NestFactory.create(AppModule);
 
-  // Global prefix
-  app.setGlobalPrefix('api'); // ← เพิ่ม
-  // URI Versioning
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
-  });
+  app.setGlobalPrefix('api');
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.useGlobalPipes(new AppValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
-  console.log('kafka consumer config:', kafkaConf.consumer);
   app.connectMicroservice<MicroserviceOptions>({
     strategy: new CustomServerConfluentKafkaJS({
-      'group.id': kafkaConf.consumer['group-id'] as string,
-      'allow.auto.create.topics': kafkaConf.consumer['allow-auto-topic-creation'] as boolean,
+      'group.id': configService.get<string>('kafka.consumer.group-id'),
+      'allow.auto.create.topics': configService.get<boolean>(
+        'kafka.consumer.allow-auto-topic-creation',
+      ),
     }),
   });
-  await app.startAllMicroservices();
 
+  await app.startAllMicroservices();
   await app.listen(port);
-  console.log(`
-  ${chalk.gray('==================================================')}
-  ${chalk.green('✓')} ${chalk.bold('NestJS Clean Template')} is running!
-  ${chalk.gray('--------------------------------------------------')}
-  🚀 ${chalk.white('Server:')}      ${chalk.cyan(`http://localhost:${port}`)}
-  📡 ${chalk.white('API Base:')}    ${chalk.cyan(`http://localhost:${port}/api/v1`)}
-  🌎 ${chalk.white('Zone:')}        ${chalk.yellow(process.env.ZONE || 'local')}
-  🏥 ${chalk.white('Health:')}      ${chalk.cyan(`http://localhost:${process.env.HEALTH_CHECK_PORT || 3001}`)}
-  🔗 ${chalk.white('Kafka:')}       ${chalk.magenta(process.env.BROKERS || 'localhost:9092')}
-  🗄️  ${chalk.white('Database:')}   ${chalk.magenta(process.env.DATABASE_URL?.split('@')[1] || 'localhost:5432')}
-  ${chalk.gray('==================================================')}
-  `);
   setupGracefulShutdown({ app });
 
   await HealthCheck.startHealthCheckWithDependenciesService(
     new HealthCheckBuilder()
       .setPort(Number(healthCheckPort))
       .setDbs([{ dbName: process.env.DATABASE_NAME!, connectionString: process.env.DATABASE_URL! }])
-      .setKafkaOpt(kafkaConfig()),
+      .setKafkaOpt(kafkaOptions),
   );
 
   const sysLog = app.get(SystemLoggerService);
-  sysLog.info(`Kafka ready (${process.env.BROKERS})`);
-  sysLog.info(`HTTP server listening on port ${port}`);
-  sysLog.info(`Health check on port ${healthCheckPort}`);
-  sysLog.info('Application bootstrap completed');
+  sysLog.info(`Kafka ready (${chalk.magenta(process.env.BROKERS)})`);
+  sysLog.info(`HTTP server listening on port ${chalk.cyan(port)}`);
+  sysLog.info(`Health check on port ${chalk.cyan(healthCheckPort)}`);
+  sysLog.info(chalk.green('Application bootstrap completed'));
 }
-
 bootstrap().catch((err) => {
   console.error('Error during application bootstrap:', err);
   process.exit(1);
