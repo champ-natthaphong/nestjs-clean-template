@@ -67,6 +67,3 @@ docker-compose.override.yaml
 .npmrc
 package-lock.json
 
-# Claude/Anthropic
-.claude/
-CLAUDE.md
