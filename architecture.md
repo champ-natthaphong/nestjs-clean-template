@@ -1,217 +1,103 @@
-# NestJS Clean Template — สรุปโปรเจกต์
+# NestJS Clean Template — Project Documentation
 
----
-
-## 📦 Tech Stack
-
-| ส่วน           | เทคโนโลยี                                             |
-| -------------- | ----------------------------------------------------- |
-| Framework      | NestJS v11                                            |
-| ORM            | TypeORM (branch: feature/replace-prisma-with-typeorm) |
-| Database       | PostgreSQL                                            |
-| Message Queue  | Kafka (Confluent KRaft mode)                          |
-| Infrastructure | Docker Compose                                        |
-| Language       | TypeScript 5                                          |
-
----
-
-## 🏗️ Architecture Pattern
+## Project Structure
 
 ```
-Controller → Manager → Service → Repository
-```
-
-| Layer      | หน้าที่                                                    |
-| ---------- | ---------------------------------------------------------- |
-| Controller | route + guard + interceptor เท่านั้น ห้ามมี business logic |
-| Manager    | try/catch + flush + unified response                       |
-| Service    | pure business logic                                        |
-| Repository | DB queries                                                 |
-
-### ตัวอย่าง REST Controller
-
-```typescript
-@Controller('users')
-@UseGuards(AuthGuard)
-@UseInterceptors(CustomRestInterceptor)
-export class UserController {
-  @CustomHttpEntryPoint('getAllUsers')
-  @Get()
-  async getAllUsers(@Req() req: Request, @Res() res: Response) {
-    await this.manager.handleGetAllUsers(req, res); // ← delegate only
-  }
-}
-```
-
-### ตัวอย่าง Kafka Consumer Controller
-
-```typescript
-@Controller()
-@UseInterceptors(AppInterceptor)
-export class NotificationConsumerController {
-  @EntryPoint(CONSUMER_TOPICS.notificationIncoming)
-  @UsePipes(new RemoveAtSymbolPipe())
-  async handleIncomingNotification(@ToObjectDecorator() data: NotificationMessageDto) {
-    await this.manager.handleIncomingNotification(data);
-  }
-}
-```
-
-### ตัวอย่าง Manager
-
-```typescript
-async handleGetAllUsers(req: Request, res: Response): Promise<void> {
-  try {
-    const users = await this.userService.getAllUsers();
-    res.json(buildSuccessResponse(users));
-    this.summaryFlush.flush();
-  } catch (error) {
-    this.summaryFlush.flushError(error);
-    this.sendErrorResponse(res, error);
-  }
-}
+nestjs-clean-template/
+├── assets/
+│   └── config/
+│       └── portal-service/
+│           └── local.config.yaml      # App config (non-secret)
+├── src/
+│   ├── common/                        # Shared utilities
+│   │   ├── config/config.service.ts   # อ่าน yaml config
+│   │   ├── decorators/
+│   │   │   ├── custom-http-entry-point.decorator.ts
+│   │   │   ├── public.decorator.ts    # @Public() — bypass JWT
+│   │   │   └── roles.decorator.ts     # @Roles('admin')
+│   │   ├── filters/
+│   │   │   └── all-exceptions.filter.ts
+│   │   ├── guards/
+│   │   │   ├── auth.guard.ts          # Basic Auth (เดิม)
+│   │   │   ├── jwt-auth.guard.ts      # JWT Guard (ใหม่)
+│   │   │   └── roles.guard.ts         # Role Guard (ใหม่)
+│   │   ├── interceptors/
+│   │   │   ├── custom-rest.interceptor.ts
+│   │   │   └── app.interceptor.ts
+│   │   ├── logger/
+│   │   │   ├── system-logger.service.ts
+│   │   │   └── summary-flush.ts
+│   │   ├── strategies/
+│   │   │   └── jwt.strategy.ts        # JWT Strategy (ใหม่)
+│   │   ├── utils/
+│   │   │   └── response.util.ts       # buildSuccessResponse/buildErrorResponse
+│   │   └── index.ts                   # Export ทุกอย่าง
+│   ├── database/
+│   │   ├── migrations/                # Migration files
+│   │   ├── data-source.ts             # TypeORM CLI config
+│   │   └── database-registry.module.ts # TypeORM app config
+│   ├── modules/
+│   │   ├── auth/                      # (ใหม่)
+│   │   │   ├── controllers/auth.controller.ts
+│   │   │   ├── managers/auth.manager.ts
+│   │   │   ├── services/auth.service.ts
+│   │   │   ├── dto/auth.dto.ts
+│   │   │   └── auth.module.ts
+│   │   ├── users/
+│   │   │   ├── controllers/user.controller.ts
+│   │   │   ├── managers/user.manager.ts
+│   │   │   ├── services/user.service.ts
+│   │   │   ├── repositories/user.repository.ts
+│   │   │   ├── entities/user.entity.ts
+│   │   │   ├── dto/user.dto.ts
+│   │   │   └── users.module.ts
+│   │   └── notification/
+│   │       └── entities/notification.entity.ts
+│   └── app.module.ts
+├── .env.example                       # Template env
+├── .env.development.local             # Local env (ไม่ commit)
+├── docker-compose.yml
+└── package.json
 ```
 
 ---
 
-## 📁 Project Structure
+## Pattern หลักของโปรเจกต์
 
 ```
-src/
-├── main.ts
-├── app.module.ts
-├── common/
-│   ├── guards/auth.guard.ts                        # Basic Auth
-│   ├── interceptors/
-│   │   ├── custom-rest.interceptor.ts              # HTTP log + requestId
-│   │   ├── entry-point.interceptor.ts              # HTTP entry point log
-│   │   └── app.interceptor.ts                     # Kafka consumer log
-│   ├── decorators/
-│   │   ├── custom-http-entry-point.decorator.ts   # @CustomHttpEntryPoint
-│   │   ├── entry-point.decorator.ts               # @EntryPoint (Kafka)
-│   │   └── to-object.decorator.ts                 # @ToObjectDecorator
-│   ├── pipes/
-│   │   ├── app-validation.pipe.ts                 # global validation
-│   │   └── remove-at-symbol.pipe.ts               # ตัด @ จาก Kafka message
-│   ├── filters/all-exceptions.filter.ts           # catch ทุก exception
-│   ├── logger/
-│   │   ├── system-logger.service.ts               # structured logger
-│   │   └── summary-flush.ts                       # flush log per request
-│   ├── health/health-check.builder.ts             # health check endpoint
-│   ├── kafka/custom-server-confluent-kafkajs.ts   # custom Kafka transport
-│   ├── utils/
-│   │   ├── response.util.ts                       # buildSuccessResponse/buildErrorResponse
-│   │   └── setup-graceful-shutdown.ts             # SIGTERM/SIGINT handler
-│   └── index.ts                                   # barrel export
-├── database/
-│   ├── database-registry.module.ts                # TypeORM forRootAsync
-│   └── data-source.ts                             # migration data source
-├── shared/
-│   └── constants/topics.ts                        # CONSUMER_TOPICS / PRODUCER_TOPICS
-└── modules/
-    ├── modules.module.ts
-    ├── users/
-    │   ├── user.module.ts
-    │   ├── controllers/user.controller.ts
-    │   ├── managers/user.manager.ts
-    │   ├── services/user.service.ts
-    │   ├── repositories/user.repository.ts
-    │   ├── entities/user.entity.ts
-    │   └── dto/user.dto.ts
-    └── notification/
-        ├── notification.module.ts
-        ├── controllers/
-        │   ├── notification.controller.ts
-        │   └── notification-consumer.controller.ts
-        ├── managers/notification.manager.ts
-        ├── services/notification.service.ts
-        ├── repositories/notification.repository.ts
-        ├── entities/notification.entity.ts
-        └── dto/notification.dto.ts
+Request → Controller → Manager → Service → Repository → Database
 ```
+
+| Layer      | หน้าที่                          |
+| ---------- | -------------------------------- |
+| Controller | รับ request, ส่งต่อ Manager      |
+| Manager    | จัดการ try/catch, build response |
+| Service    | Business logic                   |
+| Repository | Database queries                 |
 
 ---
 
-## 🗄️ TypeORM
-
-### database-registry.module.ts
+## Response Format
 
 ```typescript
-@Global()
-@Module({
-  imports: [
-    TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-        type: 'postgres',
-        url: process.env.DATABASE_URL,
-        entities: [User, Notification],
-        synchronize: process.env.ZONE === 'local', // dev only ⚠️
-        logging: process.env.ZONE === 'local',
-      }),
-    }),
-  ],
-})
-export class DatabaseModule {}
-```
-
-### Entities
-
-```typescript
-@Entity('users')
-export class User {
-  @PrimaryGeneratedColumn('uuid') id: string;
-  @Column() name: string;
-  @Column({ unique: true }) email: string;
-  @CreateDateColumn() createdAt: Date;
-  @UpdateDateColumn() updatedAt: Date;
-  @OneToMany(() => Notification, (n) => n.user) notifications: Notification[];
-}
-
-@Entity('notifications')
-export class Notification {
-  @PrimaryGeneratedColumn('uuid') id: string;
-  @Column() userId: string;
-  @Column() title: string;
-  @Column() message: string;
-  @Column({ type: 'enum', enum: NotificationType, default: NotificationType.INFO })
-  type: NotificationType;
-  @Column({ type: 'enum', enum: NotificationStatus, default: NotificationStatus.PENDING })
-  status: NotificationStatus;
-  @Column({ default: false }) isRead: boolean;
-  @Column({ type: 'timestamp', nullable: true }) readAt: Date | null;
-  @Column({ type: 'jsonb', default: {} }) metadata: Record<string, any>;
-  @CreateDateColumn() createdAt: Date;
-  @UpdateDateColumn() updatedAt: Date;
-  @ManyToOne(() => User, (u) => u.notifications) @JoinColumn({ name: 'userId' }) user: User;
-}
-```
-
-### Migration Commands
-
-```bash
-# สร้าง migration
-npm run typeorm -- migration:generate src/database/migrations/init -d src/database/data-source.ts
-
-# รัน migration
-npm run typeorm -- migration:run -d src/database/data-source.ts
-
-# ย้อน migration
-npm run typeorm -- migration:revert -d src/database/data-source.ts
-```
-
----
-
-## 🌐 API Response Format
-
-```json
 // Success
-{ "resultCode": "20000", "resultDescription": "Success", "developerMessage": "", "data": {} }
+{
+  resultCode: '20000',
+  resultDescription: 'Success',
+  developerMessage: '',
+  data: { ... }
+}
 
 // Error
-{ "resultCode": "40400", "resultDescription": "Error", "developerMessage": "...", "data": { "message": "...", "messageList": [] } }
+{
+  resultCode: '40400',
+  resultDescription: 'Error',
+  developerMessage: 'User not found',
+  data: { message: '...', messageList: [] }
+}
 ```
 
-### ResultCodes
+### Result Codes
 
 | Code  | ความหมาย       |
 | ----- | -------------- |
@@ -224,225 +110,188 @@ npm run typeorm -- migration:revert -d src/database/data-source.ts
 
 ---
 
-## 📡 REST Endpoints
-
-### Users `/users`
-
-| Method | Path                       | Action                       |
-| ------ | -------------------------- | ---------------------------- |
-| GET    | `/users`                   | ดึงทั้งหมด                   |
-| GET    | `/users/:id`               | ดึงตาม id                    |
-| GET    | `/users/:id/notifications` | ดึง user พร้อม notifications |
-| POST   | `/users`                   | สร้างใหม่                    |
-| PUT    | `/users/:id`               | แก้ไข                        |
-| DELETE | `/users/:id`               | ลบ                           |
-
-### Notifications `/notifications`
-
-| Method | Path                                   | Action           |
-| ------ | -------------------------------------- | ---------------- |
-| GET    | `/notifications/user/:userId`          | ดึงทั้งหมด       |
-| GET    | `/notifications/user/:userId/unread`   | ดึงที่ยังไม่อ่าน |
-| POST   | `/notifications`                       | สร้างใหม่        |
-| PATCH  | `/notifications/:id/read`              | mark อ่านแล้ว    |
-| PATCH  | `/notifications/user/:userId/read-all` | mark ทั้งหมด     |
-| DELETE | `/notifications/:id`                   | ลบ               |
-
----
-
-## ⚡ Kafka
-
-### Flow
+## Auth Flow
 
 ```
-Producer (Service อื่น) → [Kafka Topic] → NotificationConsumerController
-                                           → NotificationManager
-                                           → NotificationService
-                                           → NotificationRepository → DB
+POST /auth/register → สร้าง user + return JWT
+POST /auth/login    → login + return JWT
+
+Authorization: Bearer <token>  ← ใส่ใน header ทุก request
 ```
 
-### Config ใน main.ts
+### Role Guard
 
 ```typescript
-app.connectMicroservice<MicroserviceOptions>({
-  strategy: new CustomServerConfluentKafkaJS({
-    'group.id': 'nestjs-clean-template-group',
-    'allow.auto.create.topics': false,
-  }),
-});
-await app.startAllMicroservices();
-await app.listen(port);
-```
+@Roles('admin')   // เฉพาะ admin
+@Roles('user')    // เฉพาะ user
+// ไม่ใส่ = ทุก role เข้าได้ (แต่ต้อง login)
 
-### CustomServerConfluentKafkaJS
-
-- extends `Server` + implements `CustomTransportStrategy`
-- ต้อง implement: `listen()`, `close()`, `on()`, `unwrap()`
-- SASL เปิดอัตโนมัติเมื่อ `ZONE !== 'local'`
-- ห้ามประกาศ `private logger` ซ้ำ (base class มีให้แล้ว)
-
-### Topics
-
-```typescript
-export const CONSUMER_TOPICS = {
-  notificationIncoming: process.env.TOPIC_NOTIFICATION_INCOMING ?? 'notification.incoming',
-};
+@Public()         // ไม่ต้อง login เลย
 ```
 
 ---
 
-## 🐳 Docker Compose
-
-| Service  | Port | หน้าที่              |
-| -------- | ---- | -------------------- |
-| postgres | 5432 | PostgreSQL           |
-| kafka    | 9092 | Kafka broker (KRaft) |
-| kafka-ui | 9333 | Kafka Web UI         |
-
-### Kafka Connection
-
-- Host machine → `localhost:9092`
-- Docker network → `kafka:29092`
-- Kafka UI bootstrap → `kafka:29092`
-
-### KRaft Mode — Environment ที่สำคัญ
-
-| Variable                               | ความหมาย                              |
-| -------------------------------------- | ------------------------------------- |
-| KAFKA_PROCESS_ROLES                    | broker,controller — ไม่ต้อง Zookeeper |
-| KAFKA_LISTENERS                        | port ที่เปิดรับฟังจริง                |
-| KAFKA_ADVERTISED_LISTENERS             | บอก client ว่าต่อมาที่ไหน             |
-| CLUSTER_ID                             | ต้องคงที่ ถ้าเปลี่ยนจะ boot ไม่ขึ้น   |
-| KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS | ตั้ง 0 สำหรับ dev                     |
-
----
-
-## 🔐 Common Lib (`src/common/`)
-
-### AuthGuard — Basic Auth
-
-```
-Header: Authorization: Basic <base64(username:password)>
-```
-
-```env
-BASIC_AUTH_USERNAME=admin
-BASIC_AUTH_PASSWORD=secret
-```
-
-### Decorators
-
-```typescript
-@CustomHttpEntryPoint('name')  // REST — log entry/exit
-@EntryPoint('topic.name')      // Kafka — subscribe + log
-@ToObjectDecorator()           // Kafka — parse payload เป็น object
-```
-
-### Pipes
-
-```typescript
-new AppValidationPipe(); // global validation + custom error format
-new RemoveAtSymbolPipe(); // ตัด @ ออกจาก string ทุก field
-```
-
-### Utils
-
-```typescript
-buildSuccessResponse(data); // { resultCode: '20000', data }
-buildErrorResponse(code, message); // { resultCode, developerMessage }
-setupGracefulShutdown({ app }); // handle SIGTERM/SIGINT
-```
-
----
-
-## ⚙️ Environment Variables
+## Environment Variables
 
 ```env
 # App
-PORT=3080
-HEALTH_CHECK_PORT=3001
 ZONE=local
+PORT=31000
 
 # Database
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nestjs_template
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=nestjs_clean_template
+DATABASE_USER=your_username
+DATABASE_PASSWORD=your_password
+DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
 
-# Auth
+# Connection Pool
+DATABASE_POOL_MIN=2
+DATABASE_POOL_MAX=10
+
+# JWT
+JWT_SECRET=your_super_secret_key
+JWT_EXPIRES_IN=1d
+
+# Basic Auth (เดิม)
 BASIC_AUTH_USERNAME=admin
-BASIC_AUTH_PASSWORD=secret
-
-# Kafka
-BROKERS=localhost:9092
-KAFKA_CLIENT_ID=nestjs-clean-template
-API_KEY=
-API_SECRET=
-
-# Topics
-TOPIC_NOTIFICATION_INCOMING=notification.incoming
+BASIC_AUTH_PASSWORD=your_secret_password
 ```
 
 ---
 
-## 📦 NPM Scripts
+## Commands ที่ใช้บ่อย
 
 ```bash
-npm run start:local       # dev with watch
-npm run start:prod        # production
-npm run build             # compile TypeScript
-npm run lint              # eslint fix
-npm run test              # jest
+# Dev
+npm run start:local
 
-# TypeORM Migration
-npm run typeorm -- migration:generate src/database/migrations/<name> -d src/database/data-source.ts
-npm run typeorm -- migration:run -d src/database/data-source.ts
-npm run typeorm -- migration:revert -d src/database/data-source.ts
+# Build
+npm run build
+
+# Migration
+npm run migration:generate --name=CreateUserTable
+npm run migration:run
+npm run migration:revert
+
+# Test
+npm run test
+npm run test:cov
+npm run test:e2e
+
+# Lint & Format
+npm run lint
+npm run format
+
+# TypeScript check
+npm run typecheck
 ```
 
 ---
 
-## 🌿 Git Branches
-
-| Branch                              | ใช้ทำอะไร            |
-| ----------------------------------- | -------------------- |
-| main                                | stable — Prisma ORM  |
-| feature/replace-prisma-with-typeorm | TypeORM (ใช้งานอยู่) |
+## Docker
 
 ```bash
-git checkout -b feature/<ชื่อ>       # สร้าง branch ใหม่
-git commit -m "feat: <สิ่งที่ทำ>"    # commit
-git checkout main && git merge feature/<ชื่อ>  # merge
+# Start services (postgres, kafka)
+docker-compose up -d
+
+# Stop
+docker-compose down
+
+# Clean up ทุก 1-2 อาทิตย์
+docker system prune -a
 ```
 
 ---
 
-## 🔑 Key Concepts ที่ได้เรียนรู้
+## WSL Maintenance
 
-### isolatedModules + emitDecoratorMetadata
+```bash
+# เคลียร์ cache
+sudo sync && echo 3 | sudo tee /proc/sys/vm/drop_caches
 
-ต้องใช้ `import type` สำหรับ type ที่ใช้ใน method parameter ที่มี decorator:
+# อัพเดท Linux
+sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
+```
+
+---
+
+## ไฟล์ที่ยังต้อง Implement
+
+```
+⏳ src/modules/auth/auth.module.ts
+⏳ src/modules/auth/controllers/auth.controller.ts
+⏳ src/modules/auth/managers/auth.manager.ts
+⏳ src/modules/auth/services/auth.service.ts
+⏳ src/modules/auth/dto/auth.dto.ts
+⏳ src/common/strategies/jwt.strategy.ts
+⏳ src/common/guards/jwt-auth.guard.ts
+⏳ src/common/guards/roles.guard.ts
+⏳ src/common/decorators/public.decorator.ts
+⏳ src/common/decorators/roles.decorator.ts
+⏳ แก้ user.entity.ts → เพิ่ม firstName, lastName, password, role, isActive, deletedAt
+⏳ แก้ user.dto.ts → เพิ่ม firstName, lastName, password
+⏳ แก้ user.repository.ts → เพิ่ม findByEmailWithPassword
+⏳ แก้ user.controller.ts → เปลี่ยนเป็น JwtAuthGuard + RolesGuard
+⏳ แก้ common/index.ts → export ไฟล์ใหม่
+⏳ เพิ่ม JWT_SECRET ใน .env.example
+```
+
+---
+
+## Dependencies ที่ต้องติดตั้ง
+
+```bash
+npm install bcrypt @nestjs/jwt @nestjs/passport passport passport-jwt
+npm install -D @types/bcrypt @types/passport-jwt
+```
+
+---
+
+## Database Config (database-registry.module.ts)
 
 ```typescript
-import type { Request, Response } from 'express'; // ← ต้องมี type
+TypeOrmModule.forRootAsync({
+  useFactory: () => ({
+    type: 'postgres',
+    host: process.env.DATABASE_HOST ?? 'localhost',
+    port: parseInt(process.env.DATABASE_PORT ?? '5432'),
+    username: process.env.DATABASE_USER ?? 'postgres',
+    password: process.env.DATABASE_PASSWORD ?? 'postgres',
+    database: process.env.DATABASE_NAME ?? 'nestjs_clean_template',
+    entities: [UserEntity, NotificationEntity],
+    migrations: ['dist/database/migrations/*.js'],
+    migrationsRun: false,
+    migrationsTableName: 'migrations',
+    extra: {
+      min: parseInt(process.env.DATABASE_POOL_MIN ?? '2'),
+      max: parseInt(process.env.DATABASE_POOL_MAX ?? '10'),
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    },
+    synchronize: process.env.ZONE === 'local',
+    logging: process.env.ZONE === 'local',
+    ssl: process.env.ZONE === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
+  }),
+}),
 ```
 
-### TypeORM vs Prisma
+---
 
-|                | TypeORM                   | Prisma                 |
-| -------------- | ------------------------- | ---------------------- |
-| Schema         | Entity class decorator    | schema.prisma file     |
-| Migration      | migration:generate + run  | prisma migrate dev     |
-| Query          | repo.find() / repo.save() | prisma.user.findMany() |
-| Type safety    | decorator-based           | auto generated types   |
-| Learning curve | ยืดหยุ่นกว่า              | ง่ายกว่า               |
+## Tech Stack
 
-### Prisma v7 Gotchas
-
-- `provider = "prisma-client-js"` (ไม่ใช่ `prisma-client`)
-- `output = "../src/generated/prisma"` — path relative จาก `prisma/` folder
-- `tsconfig.json` ต้องใช้ `module: commonjs` ไม่ใช่ `nodenext`
-- ลบ `resolvePackageJsonExports` ออกเมื่อใช้ `moduleResolution: node`
-
-### Kafka KRaft Mode
-
-- ไม่ต้อง Zookeeper แยก — node เดียวทำหน้าที่ทั้ง broker + controller
-- `CLUSTER_ID` ต้องคงที่ตลอด
-- `KAFKA_ADVERTISED_LISTENERS` คือที่อยู่ที่ client ใช้ต่อ (ต่างจาก LISTENERS)
+| ประเภท        | เทคโนโลยี         |
+| ------------- | ----------------- |
+| Framework     | NestJS 11         |
+| Language      | TypeScript 5      |
+| Database      | PostgreSQL        |
+| ORM           | TypeORM 1.1.1     |
+| Auth          | JWT + Passport    |
+| Message Queue | Kafka (KafkaJS)   |
+| Validation    | class-validator   |
+| Config        | js-yaml + dotenv  |
+| Testing       | Jest              |
+| Linting       | ESLint + Prettier |
