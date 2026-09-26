@@ -38,3 +38,9 @@ export { SummaryFlush } from './logger/summary-flush';
 
 // Config
 export { ConfigService } from './config/config.service';
+
+export { JwtAuthGuard } from './guards/jwt-auth.guard';
+export { RolesGuard } from './guards/roles.guard';
+export { Public } from './decorators/public.decorator';
+export { Roles } from './decorators/roles.decorator';
+export { JwtStrategy } from './strategies/jwt.strategy';
