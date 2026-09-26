@@ -51,4 +51,11 @@ export class UserRepository {
   async existsByEmail(email: string): Promise<boolean> {
     return this.userRepo.existsBy({ email });
   }
+  async findByEmailWithPassword(email: string): Promise<UserEntity | null> {
+    return this.userRepo
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.email = :email', { email })
+      .getOne();
+  }
 }

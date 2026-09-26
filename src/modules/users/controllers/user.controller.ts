@@ -2,14 +2,21 @@ import { Controller, Get, Post, Put, Delete, UseGuards, UseInterceptors } from '
 import { Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { UserManager } from '../managers/user.manager';
-import { AuthGuard, CustomRestInterceptor, CustomHttpEntryPoint } from '../../../common';
+import {
+  CustomRestInterceptor,
+  CustomHttpEntryPoint,
+  RolesGuard,
+  JwtAuthGuard,
+  Roles,
+} from '../../../common';
 
 @Controller('users')
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(CustomRestInterceptor)
 export class UserController {
   constructor(private readonly manager: UserManager) {}
 
+  @Roles('admin')
   @CustomHttpEntryPoint('getAllUsers')
   @Get()
   async getAllUsers(@Req() req: Request, @Res() res: Response) {
