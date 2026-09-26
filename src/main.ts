@@ -14,6 +14,7 @@ import {
 import { AppModule } from './app.module';
 import { VersioningType } from '@nestjs/common';
 import { kafkaConfig } from './common/kafka/kafka.config';
+import { KafkaAdminService } from './common/kafka/kafka-admin.service';
 
 async function bootstrap(): Promise<void> {
   const port = process.env.PORT || 3080;
@@ -21,7 +22,8 @@ async function bootstrap(): Promise<void> {
   const configService = new ConfigService();
   const kafkaOptions = kafkaConfig();
   const app = await NestFactory.create(AppModule);
-
+  const kafkaAdmin = app.get(KafkaAdminService);
+  await kafkaAdmin.ensureTopicsExist();
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.useGlobalPipes(new AppValidationPipe());
