@@ -4,6 +4,7 @@ import { SummaryFlush } from './logger/summary-flush';
 import { SystemLoggerService } from './logger/system-logger.service';
 import { ConfigService } from './config/config.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Global()
 @Module({
@@ -14,6 +15,10 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
   exports: [SummaryFlush, SystemLoggerService, ConfigService],
