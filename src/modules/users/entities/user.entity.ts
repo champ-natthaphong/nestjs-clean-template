@@ -31,6 +31,9 @@ export class UserEntity {
   @Column({ default: 'user' })
   role!: string;
 
+  @Column({ type: 'text', nullable: true, select: false })
+  refreshToken!: string | null;
+
   @Column({ default: true })
   isActive!: boolean;
 

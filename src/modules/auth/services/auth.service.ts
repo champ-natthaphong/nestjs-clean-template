@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../../users/repositories/user.repository';
-import { RegisterDto, LoginDto, AuthResponseDto } from '../dto/auth.dto';
+import { RegisterDto, LoginDto, AuthResponseDto, RefreshTokenDto } from '../dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,21 +23,16 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const token = this.generateToken(user.id, user.email, user.role);
-    return {
-      accessToken: token,
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-      },
-    };
+    return this.buildAuthResponse(user.id, user.email, user.role, {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+    });
   }
 
   async login(dto: LoginDto): Promise<AuthResponseDto> {
-    // ดึง password มาด้วย (select: false)
     const user = await this.userRepository.findByEmailWithPassword(dto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -52,24 +47,83 @@ export class AuthService {
       throw new UnauthorizedException('Account is inactive');
     }
 
-    const token = this.generateToken(user.id, user.email, user.role);
-    return {
-      accessToken: token,
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-      },
-    };
+    return this.buildAuthResponse(user.id, user.email, user.role, {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+    });
   }
 
-  private generateToken(id: string, email: string, role: string): string {
-    return this.jwtService.sign({
-      sub: id,
-      email,
-      role,
+  async refresh(dto: RefreshTokenDto): Promise<AuthResponseDto> {
+    // verify refresh token
+    let payload: { sub: string; email: string; role: string };
+    try {
+      payload = this.jwtService.verify(dto.refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET ?? 'refresh_secret',
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    // เช็ค refresh token ใน DB
+    const user = await this.userRepository.findByIdWithRefreshToken(payload.sub);
+    if (!user || !user.refreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const isValid = await bcrypt.compare(dto.refreshToken, user.refreshToken);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    return this.buildAuthResponse(user.id, user.email, user.role, {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
     });
+  }
+
+  async logout(userId: string): Promise<void> {
+    await this.userRepository.updateRefreshToken(userId, null);
+  }
+
+  private async buildAuthResponse(
+    id: string,
+    email: string,
+    role: string,
+    user: AuthResponseDto['user'],
+  ): Promise<AuthResponseDto> {
+    const accessToken = this.generateAccessToken(id, email, role);
+    const refreshToken = this.generateRefreshToken(id, email, role);
+
+    // hash refresh token ก่อนเก็บ DB
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.userRepository.updateRefreshToken(id, hashedRefreshToken);
+
+    return { accessToken, refreshToken, user };
+  }
+
+  private generateAccessToken(id: string, email: string, role: string): string {
+    return this.jwtService.sign(
+      { sub: id, email, role },
+      {
+        secret: process.env.JWT_SECRET ?? 'secret',
+        expiresIn: 86400, // 1d = 86400 seconds
+      },
+    );
+  }
+
+  private generateRefreshToken(id: string, email: string, role: string): string {
+    return this.jwtService.sign(
+      { sub: id, email, role },
+      {
+        secret: process.env.JWT_REFRESH_SECRET ?? 'refresh_secret',
+        expiresIn: 604800, // 7d = 604800 seconds
+      },
+    );
   }
 }
