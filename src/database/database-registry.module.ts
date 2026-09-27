@@ -31,7 +31,7 @@ import { NotificationEntity } from '../modules/notification/entities/notificatio
 
         // Dev only
         synchronize: process.env.ZONE === 'local',
-        logging: process.env.ZONE === 'local',
+        logging: process.env.ZONE !== 'local',
 
         // SSL for production
         ssl: process.env.ZONE === 'production' ? { rejectUnauthorized: false } : false,

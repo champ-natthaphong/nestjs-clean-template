@@ -85,6 +85,9 @@ export class HealthCheck {
 
     server.listen(port, () => {
       logger.log(`Health check listening on port ${port}`);
+      console.log(
+        '=================================================================================================',
+      );
     });
   }
 }
