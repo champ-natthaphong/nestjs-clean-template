@@ -44,3 +44,5 @@ export { RolesGuard } from './guards/roles.guard';
 export { Public } from './decorators/public.decorator';
 export { Roles } from './decorators/roles.decorator';
 export { JwtStrategy } from './strategies/jwt.strategy';
+//swagger
+export * from './swagger/swagger.setup';

@@ -9,6 +9,7 @@ import {
   HealthCheck,
   HealthCheckBuilder,
   setupGracefulShutdown,
+  setupSwagger,
   SystemLoggerService,
 } from './common';
 import { AppModule } from './app.module';
@@ -22,6 +23,7 @@ async function bootstrap(): Promise<void> {
   const configService = new ConfigService();
   const kafkaOptions = kafkaConfig();
   const app = await NestFactory.create(AppModule);
+  setupSwagger(app);
   const kafkaAdmin = app.get(KafkaAdminService);
   await kafkaAdmin.ensureTopicsExist();
   app.setGlobalPrefix('api');
