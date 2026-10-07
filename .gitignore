@@ -57,7 +57,7 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /histories
-
+/document
 # Docker
 docker-compose.override.yaml
 .tmp/
