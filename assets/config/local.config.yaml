@@ -1,0 +1,74 @@
+app:
+  name: 'nestjs-clean-template'
+  port: 30001
+  zone: 'local'
+  componentName: 'resource.nestjs-clean-template'
+  description: 'NestJS microservice starter'
+  version: '1.0'
+  baseApiVersion: '1.0.0'
+  schemaVersion: '1.0.0'
+  authToken: 'local-dev-token'
+
+database:
+  uri: postgresql://postgres:postgres@localhost:5432/nestjs_clean_template
+
+externalServices:
+  userService:
+    baseUrl: http://localhost:4001
+    timeout: 5000
+  paymentService:
+    baseUrl: http://localhost:4002
+    timeout: 10000
+
+throttler:
+  ttl: 10000
+  limit: 20
+
+log:
+  detail:
+    level: 'debug'
+    enableFileLogging: false
+    logFileProperties:
+      dirname: 'logs/detail'
+      filename: 'detail-%DATE%'
+      datePattern: 'YYYY-MM-DD-HH'
+      extension: '.log'
+  summary:
+    level: 'debug'
+    enableFileLogging: false
+    logFileProperties:
+      dirname: 'logs/summary'
+      filename: 'summary-%DATE%'
+      datePattern: 'YYYY-MM-DD-HH'
+      extension: '.log'
+
+# ─── Feature Flags ────────────────────────────────
+featureFlags:
+  enableNewNotificationFlow: true
+  enableKafkaConsumer: true
+
+kafka:
+  brokers:
+    - localhost:9092
+  client:
+    client-id: nestjs-clean-template-client
+    ssl: false
+    request-timeout: 30000
+    enforce-request-timeout: false
+    initial-retry-time: 100
+    retries: 8
+    connection-timeout: 3000
+  consumer:
+    group-id: nestjs-clean-template-group
+    allow-auto-topic-creation: true
+  producer:
+    client-id: nestjs-clean-template-producer
+
+topics:
+  consume:
+    notification:
+      incoming: 'notification.incoming.v1'
+      created: 'notification.created.v1'
+  produce:
+    notification:
+      requested: 'notification.requested.v1'
