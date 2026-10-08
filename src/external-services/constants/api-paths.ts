@@ -6,10 +6,7 @@
  *
  * @example
  * export const API_PATHS = {
- *   atn: {
- *     sub_profile: 'external.atn.sub-profile',
- *     package_detail: 'external.atn.package-detail',
- *   },
+ *  payments: { get_invoice: 'external.payments.get-invoice' }
  * };
  */
 export const API_PATHS: Record<string, Record<string, string>> = {

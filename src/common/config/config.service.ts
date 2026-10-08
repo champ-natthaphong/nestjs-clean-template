@@ -13,7 +13,7 @@ export class ConfigService {
       process.cwd(),
       'assets',
       'config',
-      'portal-service',
+
       `${zone}.config.yaml`,
     );
     this.config = yaml.load(readFileSync(filePath, 'utf8')) as Record<string, any>;

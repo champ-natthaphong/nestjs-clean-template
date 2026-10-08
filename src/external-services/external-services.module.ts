@@ -1,13 +1,10 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-
-// import { ConfigService, ConfigValidatorService } from '@corp-ais/rat-common-lib';
-
 import { API_PATHS } from './constants/api-paths';
 
 /**
  * External Services Module
  *
- * Provides HTTP clients for external API calls (e.g. ESB backends).
+ * Provides HTTP clients for external API calls (e.g. third-party APIs backends).
  * Each backend gets its own service file in src/external-services/<backend>/
  *
  * Validates all API endpoints on startup via ConfigValidatorService.

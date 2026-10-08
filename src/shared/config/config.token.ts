@@ -1,6 +1,19 @@
 // src/shared/config/config.token.ts
 export const APP_CONFIG = Symbol('APP_CONFIG');
 
+interface ILogFileProperties {
+  dirname: string;
+  filename: string;
+  datePattern: string;
+  extension: string;
+}
+
+interface ILogChannel {
+  level: string;
+  enableFileLogging: boolean;
+  logFileProperties: ILogFileProperties;
+}
+
 // Type ตาม YAML structure
 export interface AppConfig {
   app: {
@@ -10,7 +23,6 @@ export interface AppConfig {
     componentName: string;
     description: string;
     version: string;
-    collectionName: string;
     baseApiVersion: string;
     schemaVersion: string;
     authToken: string;
@@ -25,12 +37,10 @@ export interface AppConfig {
   };
   topics: {
     consume: {
-      atn: Record<string, string>;
+      notification: Record<string, string>;
     };
     produce: {
-      atn: Record<string, string>;
-      sky: Record<string, string>;
-      ccsm: Record<string, string>;
+      notification: Record<string, string>;
     };
   };
   externalServices: Record<string, { baseUrl: string; timeout: number }>;
@@ -39,30 +49,11 @@ export interface AppConfig {
     limit: number;
   };
   log: {
-    detail: {
-      level: string;
-      enableFileLogging: boolean;
-      logFileProperties: {
-        dirname: string;
-        filename: string;
-        datePattern: string;
-        extension: string;
-      };
-    };
-    summary: {
-      level: string;
-      enableFileLogging: boolean;
-      logFileProperties: {
-        dirname: string;
-        filename: string;
-        datePattern: string;
-        extension: string;
-      };
-    };
+    detail: ILogChannel;
+    summary: ILogChannel;
   };
   featureFlags: {
-    enableNewRegistration: boolean;
-    enablePaymentFlow: boolean;
+    enableNewNotificationFlow: boolean;
     enableKafkaConsumer: boolean;
   };
 }

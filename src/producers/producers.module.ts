@@ -1,7 +1,5 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 
-// import { ConfigValidatorService } from '@corp-ais/rat-common-lib';
-
 import { PRODUCER_TOPICS } from '../shared/constants/topics';
 
 /**

@@ -16,7 +16,6 @@ export class KafkaAdminService {
   private getTopicsFromConfig(): string[] {
     const consume =
       this.configService.get<Record<string, Record<string, string>>>('topics.consume');
-    // flatten nested object เช่น { atn: { new-registration-response: 'esb.atn...' } }
     return Object.values(consume).flatMap((group) => Object.values(group));
   }
 
