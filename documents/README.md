@@ -21,12 +21,13 @@ A clean, opinionated NestJS 11 starter for building REST + Kafka microservices w
 
 Read in this order:
 
-| #   | Document                                       | Contents                                                           | Audience           |
-| --- | ---------------------------------------------- | ------------------------------------------------------------------ | ------------------ |
-| 1   | **README.md** (this file)                      | Quick start, architecture, project overview                        | Everyone           |
-| 2   | [CODING_GUIDELINES.md](CODING_GUIDELINES.md)   | ESLint rules, naming conventions, commit convention, layer pattern | Developers         |
-| 3   | [TESTING_GUIDELINES.md](TESTING_GUIDELINES.md) | Unit / integration / e2e strategy, mock patterns, test naming      | Developers         |
-| 4   | [BRANCHING_STRATEGY.md](BRANCHING_STRATEGY.md) | Trunk-based development, release tags, hotfix flow, feature flags  | Developers / Leads |
+| #   | Document                                       | Contents                                                           | Audience              |
+| --- | ---------------------------------------------- | ------------------------------------------------------------------ | --------------------- |
+| 1   | **README.md** (this file)                      | Quick start, architecture, project overview                        | Everyone              |
+| 2   | [CODING_GUIDELINES.md](CODING_GUIDELINES.md)   | ESLint rules, naming conventions, commit convention, layer pattern | Developers            |
+| 3   | [TESTING_GUIDELINES.md](TESTING_GUIDELINES.md) | Unit / integration / e2e strategy, mock patterns, test naming      | Developers            |
+| 4   | [BRANCHING_STRATEGY.md](BRANCHING_STRATEGY.md) | Trunk-based development, release tags, hotfix flow, feature flags  | Developers / Leads    |
+| 5   | [AI_RULES.md](AI_RULES.md)                     | Rules for AI coding assistants (Claude Code, Cursor, Copilot)      | Developers / AI tools |
 
 ## Quick Start
 
@@ -49,13 +50,14 @@ npm run migration:run
 npm run start:dev
 ```
 
-| Service  | URL / Port                 |
-| -------- | -------------------------- |
-| API      | http://localhost:3000      |
-| Swagger  | http://localhost:3000/docs |
-| Kafka UI | http://localhost:9333      |
+| Service      | URL / Port                                           |
+| ------------ | ---------------------------------------------------- |
+| API          | http://localhost:31000/api/v1                        |
+| Swagger      | http://localhost:31000/docs (only when `ZONE=local`) |
+| Health check | http://localhost:3001                                |
+| Kafka UI     | http://localhost:9333                                |
 
-> Adjust ports and paths above to match your `.env`.
+> Ports come from `.env` (`PORT`, `HEALTH_CHECK_PORT`).
 
 ## Architecture
 
@@ -130,30 +132,56 @@ src/
         └── dtos/
 ```
 
-## Example Module: Notification
+## API Endpoints
 
-| Method   | Endpoint                               | Description             |
-| -------- | -------------------------------------- | ----------------------- |
-| `GET`    | `/notifications/user/:userId`          | List user notifications |
-| `GET`    | `/notifications/user/:userId/unread`   | List unread             |
-| `POST`   | `/notifications`                       | Create notification     |
-| `PATCH`  | `/notifications/:id/read`              | Mark as read            |
-| `PATCH`  | `/notifications/user/:userId/read-all` | Mark all as read        |
-| `DELETE` | `/notifications/:id`                   | Delete notification     |
+Base path: `/api/v1` (global prefix `api` + URI versioning, default version `v1`).
 
-It also consumes Kafka events to create notifications asynchronously.
+### Auth
+
+| Method | Endpoint                | Description          |
+| ------ | ----------------------- | -------------------- |
+| `POST` | `/api/v1/auth/register` | Register a user      |
+| `POST` | `/api/v1/auth/login`    | Log in               |
+| `POST` | `/api/v1/auth/refresh`  | Refresh access token |
+| `POST` | `/api/v1/auth/logout`   | Log out              |
+
+### Users
+
+| Method   | Endpoint                          | Description                 |
+| -------- | --------------------------------- | --------------------------- |
+| `GET`    | `/api/v1/users`                   | List users                  |
+| `GET`    | `/api/v1/users/:id`               | Get a user                  |
+| `GET`    | `/api/v1/users/:id/notifications` | List a user's notifications |
+| `POST`   | `/api/v1/users`                   | Create a user               |
+| `PUT`    | `/api/v1/users/:id`               | Update a user               |
+| `DELETE` | `/api/v1/users/:id`               | Delete a user               |
+
+### Notifications
+
+| Method   | Endpoint                                      | Description             |
+| -------- | --------------------------------------------- | ----------------------- |
+| `GET`    | `/api/v1/notifications/user/:userId`          | List user notifications |
+| `GET`    | `/api/v1/notifications/user/:userId/unread`   | List unread             |
+| `POST`   | `/api/v1/notifications`                       | Create a notification   |
+| `PATCH`  | `/api/v1/notifications/:id/read`              | Mark as read            |
+| `PATCH`  | `/api/v1/notifications/user/:userId/read-all` | Mark all as read        |
+| `DELETE` | `/api/v1/notifications/:id`                   | Delete a notification   |
+
+The notification module also consumes Kafka events to create notifications asynchronously.
 
 ## Configuration
 
-Copy `.env.example` to `.env`:
+Environment variables live in `.env` (copy from `.env.example`). Non-secret settings (Kafka topics, log levels, throttling, feature flags) live in `assets/config/local.config.yaml`.
 
-| Variable              | Description                   |
-| --------------------- | ----------------------------- |
-| `DATABASE_URL`        | PostgreSQL connection string  |
-| `JWT_SECRET`          | JWT signing secret            |
-| `KAFKA_BROKERS`       | Comma-separated Kafka brokers |
-| `BASIC_AUTH_USERNAME` | Basic Auth username           |
-| `BASIC_AUTH_PASSWORD` | Basic Auth password           |
+| Variable                                                                                    | Description                                 |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `PORT`                                                                                      | HTTP port (default `31000`)                 |
+| `HEALTH_CHECK_PORT`                                                                         | Health check port (`3001`)                  |
+| `ZONE`                                                                                      | Set to `local` to enable Swagger at `/docs` |
+| `DATABASE_HOST` / `DATABASE_PORT` / `DATABASE_USER` / `DATABASE_PASSWORD` / `DATABASE_NAME` | PostgreSQL connection                       |
+| `DATABASE_URL`                                                                              | Built from the values above                 |
+
+See `.env.example` for the full list (JWT, Kafka, Basic Auth).
 
 > Never commit real secrets. Only commit `.env.example` with dummy values.
 
