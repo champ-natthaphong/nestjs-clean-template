@@ -1,8 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-
 import * as yaml from 'js-yaml';
-
 import { removePathTraversalCharacters } from '../../shared/utils/sanitize';
 
 export class ConfigService {
@@ -15,7 +13,6 @@ export class ConfigService {
     try {
       const fileContents = readFileSync(filePath, 'utf8');
       const parsedConfig = yaml.load(fileContents);
-
       if (typeof parsedConfig !== 'object' || parsedConfig === null) {
         throw new Error(`Invalid YAML structure in configuration file: ${filePath}`);
       }

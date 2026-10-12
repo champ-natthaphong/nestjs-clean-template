@@ -24,7 +24,6 @@ async function bootstrap(): Promise<void> {
   const dbName = configService.get<string>('database.name');
   const dbUrl = configService.get<string>('database.url');
   const kafkaBrokers = configService.get<string>('kafka.brokers');
-
   const kafkaOptions = kafkaConfig();
   const app = await NestFactory.create(AppModule);
 

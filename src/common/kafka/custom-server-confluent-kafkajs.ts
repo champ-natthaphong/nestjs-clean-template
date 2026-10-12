@@ -42,7 +42,6 @@ export class CustomServerConfluentKafkaJS extends Server implements CustomTransp
 
       const handlers = this.getHandlers();
       const topics = Array.from(handlers.keys());
-
       for (const topic of topics) {
         await this.consumer.subscribe({ topic, fromBeginning: false });
         logger.log(`Subscribed to topic: ${topic}`);
@@ -92,7 +91,6 @@ export class CustomServerConfluentKafkaJS extends Server implements CustomTransp
   }
 
   on<EventKey extends string = string>(_event: EventKey, _callback: Function): any {}
-
   unwrap<T>(): T {
     return this.consumer as unknown as T;
   }
