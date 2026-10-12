@@ -10,6 +10,7 @@ import {
   JwtAuthGuard,
   Roles,
 } from '../../../common';
+import { UserAccessGuard } from '../guards/user-access.guard';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -28,6 +29,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get user by ID' })
+  @UseGuards(UserAccessGuard)
   @CustomHttpEntryPoint('getUserById')
   @Get(':id')
   async getUserById(@Req() req: Request, @Res() res: Response) {
