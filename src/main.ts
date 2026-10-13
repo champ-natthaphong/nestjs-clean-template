@@ -26,12 +26,9 @@ async function bootstrap(): Promise<void> {
   const kafkaBrokers = configService.get<string>('kafka.brokers');
   const kafkaOptions = kafkaConfig();
   const app = await NestFactory.create(AppModule);
-
   setupSwagger(app);
-
   const kafkaAdmin = app.get(KafkaAdminService);
   await kafkaAdmin.ensureTopicsExist();
-
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.useGlobalPipes(new AppValidationPipe());
