@@ -37,6 +37,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get user with notifications' })
+  @UseGuards(UserAccessGuard)
   @CustomHttpEntryPoint('getUserWithNotifications')
   @Get(':id/notifications')
   async getUserWithNotifications(@Req() req: Request, @Res() res: Response) {

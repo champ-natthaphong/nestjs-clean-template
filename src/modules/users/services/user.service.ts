@@ -6,7 +6,6 @@ import { UserEntity } from '../entities/user.entity';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
-
   async getAllUsers(): Promise<UserEntity[]> {
     return this.userRepository.findAll();
   }
@@ -36,8 +35,7 @@ export class UserService {
   }
 
   async updateUser(id: string, dto: UpdateUserDto): Promise<UserEntity | null> {
-    await this.getUserById(id); // validate exists
-
+    await this.getUserById(id);
     if (dto.email) {
       const emailExists = await this.userRepository.findByEmail(dto.email);
       if (emailExists && emailExists.id !== id) {

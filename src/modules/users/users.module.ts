@@ -11,4 +11,4 @@ import { UserAccessGuard } from './guards/user-access.guard';
   controllers: [UserController],
   providers: [UserManager, UserService, UserRepository, UserAccessGuard],
 })
-export class UsersModule {}
+export class UserModule {}
