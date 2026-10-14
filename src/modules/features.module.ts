@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { UsersModule } from './users/users.module';
+import { UserModule } from './users/users.module';
 import { NotificationModule } from './notification/notification.module';
 
 /**
- * 📦 Feature Modules Aggregator
+ * Feature Modules Aggregator
  *
  * Import all feature modules here. AppModule imports only this module.
  *
@@ -15,13 +15,9 @@ import { NotificationModule } from './notification/notification.module';
  *   ├── managers/<feature>.manager.ts
  *   ├── services/<feature>.service.ts
  *   └── dtos/<feature>.dto.ts
+ *   ├── repositories/<feature>.repository.ts
  */
 @Module({
-  imports: [
-    // Add feature modules here, e.g:
-    // RegistrationModule,
-    UsersModule,
-    NotificationModule,
-  ],
+  imports: [UserModule, NotificationModule],
 })
 export class FeaturesModule {}
