@@ -15,9 +15,9 @@ export class NotificationConsumerController {
     await this.manager.handleIncomingNotification(data);
   }
 
-  @EntryPoint('esb.atn.registration.response.v1')
+  @EntryPoint('registration.response.v1')
   async handleRegistrationResponse(@ToObjectDecorator() data: any) {
-    console.log('ได้รับ registration response:', data);
+    console.log('XXX--> registration response:', data);
     // เดี๋ยวค่อยเรียก manager ต่อ
   }
 }

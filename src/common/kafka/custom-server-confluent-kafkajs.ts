@@ -39,10 +39,11 @@ export class CustomServerConfluentKafkaJS extends Server implements CustomTransp
     try {
       await this.consumer.connect();
       logger.log('Kafka consumer connected');
-
       const handlers = this.getHandlers();
       const topics = Array.from(handlers.keys());
+      logger.log(`Registered patterns: ${JSON.stringify(topics)}`);
       for (const topic of topics) {
+        logger.log(`Subscribing to Kafka topic: "${topic}"`);
         await this.consumer.subscribe({ topic, fromBeginning: false });
         logger.log(`Subscribed to topic: ${topic}`);
       }
