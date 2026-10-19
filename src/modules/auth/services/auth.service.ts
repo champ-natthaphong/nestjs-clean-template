@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../../users/repositories/user.repository';
@@ -59,23 +60,25 @@ export class AuthService {
   }
 
   async refresh(dto: RefreshTokenDto): Promise<AuthResponseDto> {
-    // verify refresh token
+    const refreshSecret = this.configService.getOrThrow<string>('JWT_REFRESH_SECRET');
     let payload: { sub: string; email: string; role: string };
+
     try {
       payload = this.jwtService.verify(dto.refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET ?? 'refresh_secret',
+        secret: refreshSecret,
       });
     } catch {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    // เช็ค refresh token ใน DB
     const user = await this.userRepository.findByIdWithRefreshToken(payload.sub);
-    if (!user || !user.refreshToken) {
+
+    if (!user || !user.isActive || !user.refreshToken) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
     const isValid = await bcrypt.compare(dto.refreshToken, user.refreshToken);
+
     if (!isValid) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -119,13 +122,17 @@ export class AuthService {
     );
   }
 
+  private hashToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+  }
+
   private generateRefreshToken(id: string, email: string, role: string): string {
     return this.jwtService.sign(
       { sub: id, email, role },
       {
         secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
-
-        expiresIn: 604800, // 7d = 604800 seconds
+        expiresIn: 604800,
+        jwtid: randomUUID(), // ทำให้ token แต่ละตัวไม่ซ้ำกันแม้ออกในวินาทีเดียวกัน
       },
     );
   }
