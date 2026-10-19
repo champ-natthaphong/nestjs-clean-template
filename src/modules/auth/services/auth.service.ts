@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
-import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../../users/repositories/user.repository';
@@ -117,13 +117,9 @@ export class AuthService {
       { sub: id, email, role },
       {
         secret: this.configService.getOrThrow<string>('JWT_SECRET'),
-        expiresIn: 86400, // 1d = 86400 seconds
+        expiresIn: 86400,
       },
     );
-  }
-
-  private hashToken(token: string): string {
-    return createHash('sha256').update(token).digest('hex');
   }
 
   private generateRefreshToken(id: string, email: string, role: string): string {
@@ -132,7 +128,7 @@ export class AuthService {
       {
         secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
         expiresIn: 604800,
-        jwtid: randomUUID(), // ทำให้ token แต่ละตัวไม่ซ้ำกันแม้ออกในวินาทีเดียวกัน
+        jwtid: randomUUID(),
       },
     );
   }
