@@ -16,9 +16,8 @@ export class AuthManager {
     private readonly summaryFlush: SummaryFlush,
   ) {}
 
-  async handleRegister(req: Request, res: Response): Promise<void> {
+  async handleRegister(dto: RegisterDto, res: Response): Promise<void> {
     try {
-      const dto: RegisterDto = req.body;
       const result = await this.authService.register(dto);
       res.status(201).json(buildSuccessResponse(result, ResultCodes.CREATED));
       this.summaryFlush.flush();
@@ -28,9 +27,8 @@ export class AuthManager {
     }
   }
 
-  async handleLogin(req: Request, res: Response): Promise<void> {
+  async handleLogin(dto: LoginDto, res: Response): Promise<void> {
     try {
-      const dto: LoginDto = req.body;
       const result = await this.authService.login(dto);
       res.json(buildSuccessResponse(result));
       this.summaryFlush.flush();
@@ -39,9 +37,8 @@ export class AuthManager {
       this.sendErrorResponse(res, error);
     }
   }
-  async handleRefresh(req: Request, res: Response): Promise<void> {
+  async handleRefresh(dto: RefreshTokenDto, res: Response): Promise<void> {
     try {
-      const dto: RefreshTokenDto = req.body;
       const result = await this.authService.refresh(dto);
       res.json(buildSuccessResponse(result));
       this.summaryFlush.flush();

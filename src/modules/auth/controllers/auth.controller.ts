@@ -1,5 +1,5 @@
 import { Controller, Post, UseInterceptors } from '@nestjs/common';
-import { Req, Res } from '@nestjs/common';
+import { Req, Res, Body } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { AuthManager } from '../managers/auth.manager';
@@ -12,23 +12,21 @@ import { LoginDto, RegisterDto, RefreshTokenDto } from '../dto/auth.dto';
 @UseInterceptors(CustomRestInterceptor)
 export class AuthController {
   constructor(private readonly authManager: AuthManager) {}
-
   @ApiOperation({ summary: 'Register new user' })
   @ApiBody({ type: RegisterDto })
   @Public()
   @CustomHttpEntryPoint('register')
   @Post('register')
-  async register(@Req() req: Request, @Res() res: Response) {
-    await this.authManager.handleRegister(req, res);
+  async register(@Body() dto: RegisterDto, @Res() res: Response) {
+    await this.authManager.handleRegister(dto, res);
   }
-
   @ApiOperation({ summary: 'Login' })
   @ApiBody({ type: LoginDto })
   @Public()
   @CustomHttpEntryPoint('login')
   @Post('login')
-  async login(@Req() req: Request, @Res() res: Response) {
-    await this.authManager.handleLogin(req, res);
+  async login(@Body() dto: LoginDto, @Res() res: Response) {
+    await this.authManager.handleLogin(dto, res);
   }
 
   @ApiOperation({ summary: 'Refresh access token' })
@@ -36,8 +34,8 @@ export class AuthController {
   @Public()
   @CustomHttpEntryPoint('refresh')
   @Post('refresh')
-  async refresh(@Req() req: Request, @Res() res: Response) {
-    await this.authManager.handleRefresh(req, res);
+  async refresh(@Body() dto: RefreshTokenDto, @Res() res: Response) {
+    await this.authManager.handleRefresh(dto, res);
   }
 
   @ApiOperation({ summary: 'Logout' })
