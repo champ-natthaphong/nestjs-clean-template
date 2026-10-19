@@ -31,6 +31,8 @@ export class UserManager {
     try {
       const { id } = req.params as { id: string };
       const user = await this.userService.getUserById(id);
+      console.log({ user });
+
       res.json(buildSuccessResponse(user));
       this.summaryFlush.flush();
     } catch (error) {

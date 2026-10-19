@@ -11,9 +11,13 @@ interface AuthenticatedRequest extends Request {
 @Injectable()
 export class UserAccessGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
+    console.log('========= 1 user access guard===========');
+
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+
     const requestedUserId = request.params.id;
     const currentUser = request.user;
+    console.log({ requestedUserId, currentUser });
     if (!currentUser?.id) {
       throw new ForbiddenException('User identity is missing');
     }

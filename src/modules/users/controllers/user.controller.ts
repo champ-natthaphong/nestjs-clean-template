@@ -44,12 +44,12 @@ export class UserController {
     await this.manager.handleGetUserWithNotifications(req, res);
   }
 
-  @ApiOperation({ summary: 'Create user' })
-  @CustomHttpEntryPoint('createUser')
-  @Post()
-  async createUser(@Req() req: Request, @Res() res: Response) {
-    await this.manager.handleCreateUser(req, res);
-  }
+  // @ApiOperation({ summary: 'Create user' })
+  // @CustomHttpEntryPoint('createUser')
+  // @Post()
+  // async createUser(@Req() req: Request, @Res() res: Response) {
+  //   await this.manager.handleCreateUser(req, res);
+  // }
 
   @ApiOperation({ summary: 'Update user' })
   @CustomHttpEntryPoint('updateUser')
