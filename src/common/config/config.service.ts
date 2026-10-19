@@ -55,4 +55,11 @@ export class ConfigService {
 
     return undefined as unknown as T;
   }
+  getOrThrow<T = string>(key: string): T {
+    const value = this.get<T>(key);
+    if (value === undefined || value === null || value === '') {
+      throw new Error(`Missing required config: ${key}`);
+    }
+    return value;
+  }
 }
