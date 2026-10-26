@@ -101,7 +101,7 @@
     "moduleNameMapper": {
       "^@nestjs/typeorm$": "<rootDir>/test/mocks/nestjs-typeorm.ts",
       "^@nestjs/passport$": "<rootDir>/test/mocks/nestjs-passport.ts",
-      "^@nestjs/jwt$": "<rootDir>/test/mocks/generic-stub.ts",
+      "^@nestjs/jwt$": "<rootDir>/test/mocks/nestjs-jwt.ts",
       "^@nestjs/swagger$": "<rootDir>/test/mocks/generic-stub.ts",
       "^uuid$": "<rootDir>/test/mocks/uuid.ts",
       "^src/(.*)$": "<rootDir>/src/$1"

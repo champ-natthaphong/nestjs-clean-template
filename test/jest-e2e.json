@@ -7,7 +7,7 @@
   "moduleNameMapper": {
     "^@nestjs/typeorm$": "<rootDir>/mocks/nestjs-typeorm.ts",
     "^@nestjs/passport$": "<rootDir>/mocks/nestjs-passport.ts",
-    "^@nestjs/jwt$": "<rootDir>/mocks/generic-stub.ts",
+    "^@nestjs/jwt$": "<rootDir>/mocks/nestjs-jwt.ts",
     "^@nestjs/swagger$": "<rootDir>/mocks/generic-stub.ts",
     "^uuid$": "<rootDir>/mocks/uuid.ts",
     "^src/(.*)$": "<rootDir>/../src/$1"
