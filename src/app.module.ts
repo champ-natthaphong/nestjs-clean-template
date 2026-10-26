@@ -9,7 +9,6 @@ import { KafkaModule } from './common/kafka/kafka.module';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { runSeeds } from './database/seeds';
-import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     AppConfigModule,
@@ -25,7 +24,6 @@ import { AuthModule } from './modules/auth/auth.module';
         },
       ],
     }),
-    AuthModule,
     CommonModule,
     DatabaseModule,
     KafkaModule,

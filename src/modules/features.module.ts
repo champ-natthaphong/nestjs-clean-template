@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UserModule } from './users/users.module';
 import { NotificationModule } from './notification/notification.module';
+import { AuthModule } from './auth/auth.module';
 
 /**
  * Feature Modules Aggregator
@@ -18,6 +19,6 @@ import { NotificationModule } from './notification/notification.module';
  *   ├── repositories/<feature>.repository.ts
  */
 @Module({
-  imports: [UserModule, NotificationModule],
+  imports: [AuthModule, UserModule, NotificationModule],
 })
 export class FeaturesModule {}
