@@ -19,6 +19,7 @@ describe('NotificationManager', () => {
     deleteNotification: asyncMock(),
     processIncomingNotification: asyncMock(),
   };
+
   const mockFlush = { flush: asyncMock(), flushError: asyncMock() };
 
   const makeReq = (params: Record<string, string> = {}, body: unknown = {}) =>

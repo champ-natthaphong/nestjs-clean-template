@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import supertest from 'supertest';
+import request from 'supertest';
 import { jest, describe, beforeEach, it, expect, beforeAll, afterAll } from '@jest/globals';
 import { NotificationController } from 'src/modules/notification/controllers/notification.controller';
 import { NotificationManager } from 'src/modules/notification/managers/notification.manager';
@@ -14,8 +14,7 @@ import {
   SummaryFlush,
 } from 'src/common';
 import { asyncMock } from '../helpers/mock-fn';
-const request = supertest;
-// ทำให้ค่าที่คาดหวังผ่าน JSON เหมือนที่ถูกส่งออกจริง
+
 const json = (v: unknown) => JSON.parse(JSON.stringify(v));
 
 describe('NotificationController (e2e)', () => {
