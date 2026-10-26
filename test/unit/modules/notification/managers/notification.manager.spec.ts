@@ -4,27 +4,31 @@ import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 import { NotificationManager } from 'src/modules/notification/managers/notification.manager';
 import { NotificationService } from 'src/modules/notification/services/notification.service';
 import { buildErrorResponse, buildSuccessResponse, ResultCodes, SummaryFlush } from 'src/common';
+import { asyncMock } from '../../../../helpers/mock-fn';
 
 describe('NotificationManager', () => {
   let manager: NotificationManager;
 
   const mockService = {
-    getNotificationsByUserId: jest.fn(),
-    getUnreadCount: jest.fn(),
-    getUnreadNotifications: jest.fn(),
-    createNotification: jest.fn(),
-    markAsRead: jest.fn(),
-    markAllAsRead: jest.fn(),
-    deleteNotification: jest.fn(),
-    processIncomingNotification: jest.fn(),
+    getNotificationsByUserId: asyncMock(),
+    getUnreadCount: asyncMock(),
+    getUnreadNotifications: asyncMock(),
+    createNotification: asyncMock(),
+    markAsRead: asyncMock(),
+    markAllAsRead: asyncMock(),
+    deleteNotification: asyncMock(),
+    processIncomingNotification: asyncMock(),
   };
-  const mockFlush = { flush: jest.fn(), flushError: jest.fn() };
+  const mockFlush = { flush: asyncMock(), flushError: asyncMock() };
 
   const makeReq = (params: Record<string, string> = {}, body: unknown = {}) =>
     ({ params, body }) as unknown as Request;
 
   const makeRes = () => {
-    const res = { json: jest.fn(), status: jest.fn() };
+    const res = {
+      json: jest.fn(),
+      status: jest.fn(),
+    };
     res.status.mockReturnValue(res);
     return res;
   };

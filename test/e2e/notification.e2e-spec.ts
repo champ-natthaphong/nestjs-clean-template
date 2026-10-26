@@ -13,21 +13,21 @@ import {
   ResultCodes,
   SummaryFlush,
 } from 'src/common';
-
+import { asyncMock } from '../helpers/mock-fn';
+const request = supertest;
 // ทำให้ค่าที่คาดหวังผ่าน JSON เหมือนที่ถูกส่งออกจริง
 const json = (v: unknown) => JSON.parse(JSON.stringify(v));
 
 describe('NotificationController (e2e)', () => {
   let app: INestApplication;
-
   const mockService = {
-    getNotificationsByUserId: jest.fn(),
-    getUnreadCount: jest.fn(),
-    getUnreadNotifications: jest.fn(),
-    createNotification: jest.fn(),
-    markAsRead: jest.fn(),
-    markAllAsRead: jest.fn(),
-    deleteNotification: jest.fn(),
+    getNotificationsByUserId: asyncMock(),
+    getUnreadCount: asyncMock(),
+    getUnreadNotifications: asyncMock(),
+    createNotification: asyncMock(),
+    markAsRead: asyncMock(),
+    markAllAsRead: asyncMock(),
+    deleteNotification: asyncMock(),
   };
   const mockFlush = { flush: jest.fn(), flushError: jest.fn() };
 
