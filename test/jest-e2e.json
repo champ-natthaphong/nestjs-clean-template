@@ -3,7 +3,11 @@
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
-  "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+  "transform": { "^.+\\.(t|j)s$": "ts-jest" },
+  "moduleNameMapper": {
+    "^@nestjs/typeorm$": "<rootDir>/mocks/nestjs-typeorm.ts",
+    "^uuid$": "<rootDir>/mocks/uuid.ts",
+    "^chalk$": "<rootDir>/mocks/chalk.ts",
+    "^src/(.*)$": "<rootDir>/../src/$1"
   }
 }
