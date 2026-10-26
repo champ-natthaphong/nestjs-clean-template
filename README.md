@@ -17,18 +17,6 @@ A clean, opinionated NestJS 11 starter for building REST + Kafka microservices w
 - **Quality tooling** — Jest (unit + e2e), ESLint, Prettier, Husky, commitlint
 - **Docker Compose** for local infra (PostgreSQL, Kafka, Kafka UI)
 
-## Documentation
-
-Read in this order:
-
-| #   | Document                                       | Contents                                                           | Audience              |
-| --- | ---------------------------------------------- | ------------------------------------------------------------------ | --------------------- |
-| 1   | **README.md** (this file)                      | Quick start, architecture, project overview                        | Everyone              |
-| 2   | [CODING_GUIDELINES.md](CODING_GUIDELINES.md)   | ESLint rules, naming conventions, commit convention, layer pattern | Developers            |
-| 3   | [TESTING_GUIDELINES.md](TESTING_GUIDELINES.md) | Unit / integration / e2e strategy, mock patterns, test naming      | Developers            |
-| 4   | [BRANCHING_STRATEGY.md](BRANCHING_STRATEGY.md) | Trunk-based development, release tags, hotfix flow, feature flags  | Developers / Leads    |
-| 5   | [AI_RULES.md](AI_RULES.md)                     | Rules for AI coding assistants (Claude Code, Cursor, Copilot)      | Developers / AI tools |
-
 ## Quick Start
 
 ### Prerequisites
@@ -128,6 +116,7 @@ src/
         ├── controllers/
         ├── managers/
         ├── services/
+        ├── entities/
         ├── repositories/
         └── dtos/
 ```
@@ -152,7 +141,6 @@ Base path: `/api/v1` (global prefix `api` + URI versioning, default version `v1`
 | `GET`    | `/api/v1/users`                   | List users                  |
 | `GET`    | `/api/v1/users/:id`               | Get a user                  |
 | `GET`    | `/api/v1/users/:id/notifications` | List a user's notifications |
-| `POST`   | `/api/v1/users`                   | Create a user               |
 | `PUT`    | `/api/v1/users/:id`               | Update a user               |
 | `DELETE` | `/api/v1/users/:id`               | Delete a user               |
 
@@ -208,12 +196,3 @@ See `.env.example` for the full list (JWT, Kafka, Basic Auth).
 2. Register the module in `src/modules/modules.module.ts`.
 3. For Kafka: add the topic to config, expose it in `CONSUMER_TOPICS` / `PRODUCER_TOPICS`, then use `@EntryPoint(...)`.
 4. Generate a migration if you added entities: `npm run migration:generate`.
-
-## Commit Convention
-
-[Conventional Commits](https://www.conventionalcommits.org/), enforced by Husky + commitlint.
-
-```bash
-git commit -m "feat(notification): add mark-all-read endpoint"
-git commit -m "fix(kafka): handle consumer reconnect"
-```
