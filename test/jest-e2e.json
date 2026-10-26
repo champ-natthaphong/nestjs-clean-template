@@ -6,8 +6,10 @@
   "transform": { "^.+\\.(t|j)s$": "ts-jest" },
   "moduleNameMapper": {
     "^@nestjs/typeorm$": "<rootDir>/mocks/nestjs-typeorm.ts",
+    "^@nestjs/passport$": "<rootDir>/mocks/nestjs-passport.ts",
+    "^@nestjs/jwt$": "<rootDir>/mocks/generic-stub.ts",
+    "^@nestjs/swagger$": "<rootDir>/mocks/generic-stub.ts",
     "^uuid$": "<rootDir>/mocks/uuid.ts",
-    "^chalk$": "<rootDir>/mocks/chalk.ts",
     "^src/(.*)$": "<rootDir>/../src/$1"
   }
 }
