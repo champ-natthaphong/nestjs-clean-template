@@ -217,7 +217,3 @@ See `.env.example` for the full list (JWT, Kafka, Basic Auth).
 git commit -m "feat(notification): add mark-all-read endpoint"
 git commit -m "fix(kafka): handle consumer reconnect"
 ```
-
-## License
-
-[MIT](LICENSE) © Natthaphong Thammabut
