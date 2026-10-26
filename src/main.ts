@@ -19,10 +19,11 @@ import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
   const configService = new ConfigService();
-  const port = configService.get<number>('port') ?? 3080;
-  const healthCheckPort = configService.get<number>('healthCheckPort') ?? 3001;
+  const port = configService.get<number>('app.port') ?? 3010;
+  const healthCheckPort = configService.get<number>('healthCheckPort') ?? 3020;
   const dbName = configService.get<string>('database.name');
-  const dbUrl = configService.get<string>('database.url');
+  const connectionString = configService.getDatabaseUrl();
+  console.log({ connectionString });
   const kafkaBrokers = configService.get<string>('kafka.brokers');
   const kafkaOptions = kafkaConfig();
   const app = await NestFactory.create(AppModule);
@@ -50,7 +51,7 @@ async function bootstrap(): Promise<void> {
   await HealthCheck.startHealthCheckWithDependenciesService(
     new HealthCheckBuilder()
       .setPort(Number(healthCheckPort))
-      .setDbs([{ dbName, connectionString: dbUrl }])
+      .setDbs([{ dbName, connectionString }])
       .setKafkaOpt(kafkaOptions),
   );
 

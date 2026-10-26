@@ -19,16 +19,11 @@ export class ConfigService {
 
       this.config = parsedConfig as Record<string, unknown>;
     } catch (error: unknown) {
-      // สามารถใช้ Logger หรือ fallback เป็น object ว่างได้ตามความเหมาะสม
       this.config = {};
     }
   }
 
-  /**
-   * ดึงค่า configuration พร้อมรองรับ Default Value และ fallback ไปยัง process.env
-   */
   get<T>(path: string, defaultValue?: T): T {
-    // 1. ลองดึงค่าจาก nested path ใน YAML config
     const valueFromYaml = path.split('.').reduce<unknown>((obj, key) => {
       if (obj && typeof obj === 'object' && key in obj) {
         return (obj as Record<string, unknown>)[key];
@@ -40,7 +35,6 @@ export class ConfigService {
       return valueFromYaml as T;
     }
 
-    // 2. Fallback: ลองดึงจาก process.env (แปลง path เช่น 'database.url' -> 'DATABASE_URL')
     const envKey = path.toUpperCase().replace(/\./g, '_');
     const valueFromEnv = process.env[envKey];
 
@@ -48,7 +42,6 @@ export class ConfigService {
       return valueFromEnv as unknown as T;
     }
 
-    // 3. Fallback: ส่งค่า defaultValue
     if (defaultValue !== undefined) {
       return defaultValue;
     }
@@ -61,5 +54,18 @@ export class ConfigService {
       throw new Error(`Missing required config: ${key}`);
     }
     return value;
+  }
+  getDatabaseUrl(): string {
+    const user = process.env.DATABASE_USER;
+    const password = process.env.DATABASE_PASSWORD;
+    const host = process.env.DATABASE_HOST;
+    const port = process.env.DATABASE_PORT ?? '5432';
+    const name = process.env.DATABASE_NAME;
+
+    if (!user || password === undefined || !host || !name) {
+      throw new Error('Missing required database environment variables');
+    }
+    const credentials = `${encodeURIComponent(user)}:${encodeURIComponent(password)}`;
+    return `postgresql://${credentials}@${host}:${port}/${encodeURIComponent(name)}`;
   }
 }

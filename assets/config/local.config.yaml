@@ -1,6 +1,6 @@
 app:
   name: 'nestjs-clean-template'
-  port: 30001
+  port: 32100
   zone: 'local'
   componentName: 'resource.nestjs-clean-template'
   description: 'NestJS microservice starter'

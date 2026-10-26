@@ -44,19 +44,28 @@ export class HealthCheck {
     const server = http.createServer(async (_req, res) => {
       const checks: Record<string, 'ok' | 'error'> = {};
 
-      // Check DBs
       for (const db of dbs) {
+        const pool = new Pool({
+          connectionString: db.connectionString,
+          connectionTimeoutMillis: 5000,
+        });
+
         try {
-          const pool = new Pool({ connectionString: db.connectionString });
           await pool.query('SELECT 1');
-          await pool.end();
           checks[db.dbName] = 'ok';
-        } catch {
+          logger.log(`Database "${db.dbName}" connected successfully`);
+        } catch (error: unknown) {
           checks[db.dbName] = 'error';
+          const message = error instanceof Error ? error.message : String(error);
+          logger.error(`Database "${db.dbName}" connection failed: ${message}`);
+        } finally {
+          await pool.end().catch((error: unknown) => {
+            const message = error instanceof Error ? error.message : String(error);
+            logger.warn(`Failed to close pool for database "${db.dbName}": ${message}`);
+          });
         }
       }
 
-      // Check Kafka
       if (kafkaOpt?.client) {
         try {
           const kafka = new Kafka(kafkaOpt.client as any);
@@ -84,10 +93,8 @@ export class HealthCheck {
     });
 
     server.listen(port, () => {
-      logger.log(`Health check listening on port ${port}`);
-      console.log(
-        '=================================================================================================',
-      );
+      logger.log(`Health check server listening on port ${port}`);
+      logger.log(`Databases configured: ${dbs.map((db) => db.dbName).join(', ') || 'none'}`);
     });
   }
 }

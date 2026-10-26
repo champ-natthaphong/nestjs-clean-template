@@ -69,7 +69,6 @@ describe('AuthController (e2e)', () => {
 
     it('should return 201 with the tokens', async () => {
       mockService.register.mockResolvedValue(authResult);
-
       const res = await request(app.getHttpServer()).post('/auth/register').send(body);
 
       expect(res.status).toBe(201);
@@ -112,7 +111,7 @@ describe('AuthController (e2e)', () => {
   });
 
   describe('POST /auth/login', () => {
-    const body = { email: 'c@e.com', password: 'Password123!' };
+    const body = { email: 'champ@example.com', password: 'Password123!' };
 
     it('should return 200 with the tokens', async () => {
       mockService.login.mockResolvedValue(authResult);
@@ -175,6 +174,7 @@ describe('AuthController (e2e)', () => {
       mockService.logout.mockResolvedValue(undefined);
 
       const res = await request(app.getHttpServer()).post('/auth/logout');
+      console.log({ res });
 
       expect(res.status).toBe(201);
       expect(mockService.logout).toHaveBeenCalledWith('u1');
