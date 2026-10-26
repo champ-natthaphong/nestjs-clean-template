@@ -1,8 +1,8 @@
 import { INestApplication, VersioningType } from '@nestjs/common';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { AppModule } from '../../src/app.module';
-import { AllExceptionsFilter } from '../../src/common/filters/all-exceptions.filter';
-import { AppValidationPipe } from '../../src/common/pipes/app-validation.pipe';
+import { AppModule } from 'src/app.module';
+import { AllExceptionsFilter } from 'src/common/filters/all-exceptions.filter';
+import { AppValidationPipe } from 'src/common/pipes/app-validation.pipe';
 
 export async function createTestApp(
   customize?: (b: TestingModuleBuilder) => TestingModuleBuilder,
