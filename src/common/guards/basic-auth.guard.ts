@@ -9,13 +9,13 @@ import {
 import { createHash, timingSafeEqual } from 'node:crypto';
 import type { Request, Response } from 'express';
 import { ConfigService } from '../config/config.service';
-export interface RequestContext {
+export interface IRequestContext {
   language: string;
   protocol: string;
   host: string;
 }
 
-type RequestWithContext = Request & { appContext?: RequestContext };
+type RequestWithContext = Request & { appContext?: IRequestContext };
 
 const sha256 = (value: string) => createHash('sha256').update(value).digest();
 const safeEqual = (a: string, b: string) => timingSafeEqual(sha256(a), sha256(b));
@@ -45,6 +45,7 @@ export class BasicAuthGuard implements CanActivate {
     const credentials = parseBasicAuth(req.headers.authorization);
     const username = this.configService.getOrThrow<string>('BASIC_AUTH_USERNAME');
     const password = this.configService.getOrThrow<string>('BASIC_AUTH_PASSWORD');
+    console.log({ credentials, username, password });
 
     if (
       !credentials ||
@@ -65,6 +66,6 @@ export class BasicAuthGuard implements CanActivate {
 }
 
 export const AppContext = createParamDecorator(
-  (_data: unknown, ctx: ExecutionContext): RequestContext | undefined =>
+  (_data: unknown, ctx: ExecutionContext): IRequestContext | undefined =>
     ctx.switchToHttp().getRequest<RequestWithContext>().appContext,
 );

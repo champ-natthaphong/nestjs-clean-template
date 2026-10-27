@@ -1,9 +1,9 @@
-import { Controller, Post, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Req, Res, Body } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { AuthManager } from '../managers/auth.manager';
-import { CustomRestInterceptor, CustomHttpEntryPoint } from '../../../common';
+import { CustomRestInterceptor, CustomHttpEntryPoint, BasicAuthGuard } from '../../../common';
 import { Public } from '../../../common/decorators/public.decorator';
 import { LoginDto, RegisterDto, RefreshTokenDto } from '../dto/auth.dto';
 
@@ -15,6 +15,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Register new user' })
   @ApiBody({ type: RegisterDto })
   @Public()
+  @UseGuards(BasicAuthGuard)
   @CustomHttpEntryPoint('register')
   @Post('register')
   async register(@Body() dto: RegisterDto, @Res() res: Response) {
@@ -23,6 +24,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Login' })
   @ApiBody({ type: LoginDto })
   @Public()
+  @UseGuards(BasicAuthGuard)
   @CustomHttpEntryPoint('login')
   @Post('login')
   async login(@Body() dto: LoginDto, @Res() res: Response) {
