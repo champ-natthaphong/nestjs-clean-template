@@ -1,6 +1,6 @@
 // Guards
 export { AuthGuard } from './guards/auth.guard';
-
+export { BasicAuthGuard } from './guards/basic-auth.guard';
 // Interceptors
 export { CustomRestInterceptor } from './interceptors/custom-rest.interceptor';
 export { EntryPointInterceptor } from './interceptors/entry-point.interceptor';
