@@ -9,6 +9,7 @@ import {
   RolesGuard,
   JwtAuthGuard,
   Roles,
+  BasicAuthGuard,
 } from '../../../common';
 import { UserAccessGuard } from '../guards/user-access.guard';
 
@@ -29,7 +30,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get user by ID' })
-  @UseGuards(UserAccessGuard)
+  @UseGuards(BasicAuthGuard, UserAccessGuard)
   @CustomHttpEntryPoint('getUserById')
   @Get(':id')
   async getUserById(@Req() req: Request, @Res() res: Response) {

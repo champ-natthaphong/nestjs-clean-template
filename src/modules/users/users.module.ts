@@ -6,9 +6,11 @@ import { UserRepository } from './repositories/user.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { UserAccessGuard } from './guards/user-access.guard';
+import { BasicAuthGuard } from 'src/common';
+
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity])],
   controllers: [UserController],
-  providers: [UserManager, UserService, UserRepository, UserAccessGuard],
+  providers: [UserManager, UserService, UserRepository, UserAccessGuard, BasicAuthGuard],
 })
 export class UserModule {}
