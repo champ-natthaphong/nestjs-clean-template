@@ -23,7 +23,6 @@ async function bootstrap(): Promise<void> {
   const healthCheckPort = configService.get<number>('healthCheckPort') ?? 3020;
   const dbName = configService.get<string>('database.name');
   const connectionString = configService.getDatabaseUrl();
-  console.log({ connectionString });
   const kafkaBrokers = configService.get<string>('kafka.brokers');
   const kafkaOptions = kafkaConfig();
   const app = await NestFactory.create(AppModule);
